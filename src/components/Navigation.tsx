@@ -27,8 +27,13 @@ const megaMenuData: Record<string, MegaMenuItem[]> = {
         { title: 'Community', description: 'Join our network', link: '/community' },
         { title: 'Events', description: 'Workshops & webinars', link: '/events' },
     ],
+    'FAQs': [
+        { title: 'General Questions', description: 'Common questions about Avital', link: '/faqs' },
+        { title: 'Pricing & Packages', description: 'Pricing plans and discounts', link: '/faqs' },
+        { title: 'Technical Support', description: 'Tech stack and project help', link: '/faqs' },
+        { title: 'Consultants', description: 'About our consultants', link: '/faqs' },
+    ],
 }
-
 export const Navigation = () => {
     const navigate = useNavigate()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -36,8 +41,7 @@ export const Navigation = () => {
     const [hoverTimeout, setHoverTimeout] = useState<ReturnType<typeof setTimeout> | null>(null)
     const [scrolled, setScrolled] = useState(false)
 
-    const navItems = ['Services', 'Projects', 'Resources']
-
+    const navItems = ['Services', 'Projects', 'Resources', 'FAQs']
     useEffect(() => {
         const handleScroll = () => {
             setScrolled(window.scrollY > 50)

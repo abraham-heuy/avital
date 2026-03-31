@@ -12,6 +12,7 @@ import { NotFound } from './components/NotFound'
 import { EventRegister } from './components/events/eventRegister'
 import { SuccessStoryPage } from './components/success/[uuid]'
 import { SuccessStories } from './components/success/successStories'
+import { FAQs } from './components/faq'
 
 // Page transition wrapper
 const PageTransition = ({ children }: { children: React.ReactNode }) => {
@@ -96,7 +97,8 @@ export const router = createBrowserRouter([
       <PageTransition>
         <EventRegister />
       </PageTransition>
-    ),},
+    ),
+  },
   {
     path: '*',
     element: (
@@ -122,4 +124,12 @@ export const router = createBrowserRouter([
     ),
   },
 
+  {
+    path: '/faqs',
+    element: (
+      <PageTransition>
+        <FAQs />
+      </PageTransition>
+    ),
+  },
 ])
