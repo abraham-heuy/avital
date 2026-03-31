@@ -93,12 +93,11 @@ export const Hero = () => {
       <div className="relative z-10 container mx-auto px-4">
         <div className="flex flex-col lg:flex-row gap-12">
 
-          {/* LEFT */}
+          {/* LEFT COLUMN */}
           <div
             ref={headerRef}
             className="lg:w-1/2 lg:sticky lg:top-24 lg:h-screen flex flex-col justify-center pt-28 pb-8"
           >
-
             {/* HEADLINE */}
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
@@ -184,7 +183,7 @@ export const Hero = () => {
               {' '}connects you with someone who has been exactly where you are.
             </motion.p>
 
-            {/* CTA */}
+            {/* CTA Buttons */}
             <motion.div className="flex gap-4 mt-8">
               <button
                 onClick={scrollToContact}
@@ -202,10 +201,10 @@ export const Hero = () => {
 
           </div>
 
-          {/* RIGHT */}
+          {/* RIGHT COLUMN - Scrollable with NO VISIBLE SCROLLBAR */}
           <div
             ref={rightColRef}
-            className="lg:w-1/2 lg:h-screen lg:overflow-y-auto pt-0 lg:pt-28 pb-20"
+            className="lg:w-1/2 lg:h-screen lg:overflow-y-auto pt-0 lg:pt-28 pb-20 hide-scrollbar"
           >
             <div className="space-y-5">
               {descriptions.map((item, index) => (
