@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useScroll, useTransform } from 'framer-motion'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
@@ -198,63 +198,61 @@ interface TooltipProps {
 }
 
 const Tooltip = ({ step, onClose, side }: TooltipProps) => (
-  <AnimatePresence>
-    <motion.div
-      initial={{ opacity: 0, scale: 0.85, x: side === 'right' ? -20 : 20 }}
-      animate={{ opacity: 1, scale: 1, x: 0 }}
-      exit={{ opacity: 0, scale: 0.85 }}
-      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+  <motion.div
+    initial={{ opacity: 0, scale: 0.85, x: side === 'right' ? -20 : 20 }}
+    animate={{ opacity: 1, scale: 1, x: 0 }}
+    exit={{ opacity: 0, scale: 0.85 }}
+    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+    className={`
+      absolute z-50 w-64 sm:w-72
+      ${side === 'right' ? 'left-full ml-4' : 'right-full mr-4'}
+      top-1/2 -translate-y-1/2
+      bg-rb-dark/95 backdrop-blur-xl
+      border border-rb-blue/30
+      rounded-2xl p-5
+      shadow-2xl
+    `}
+  >
+    {/* Arrow */}
+    <div
       className={`
-        absolute z-50 w-64 sm:w-72
-        ${side === 'right' ? 'left-full ml-4' : 'right-full mr-4'}
-        top-1/2 -translate-y-1/2
-        bg-rb-dark/95 backdrop-blur-xl
-        border border-rb-blue/30
-        rounded-2xl p-5
-        shadow-2xl
+        absolute top-1/2 -translate-y-1/2
+        w-3 h-3 bg-rb-dark/95 border-rb-blue/30
+        rotate-45
+        ${side === 'right'
+          ? '-left-1.5 border-l border-b'
+          : '-right-1.5 border-r border-t'
+        }
       `}
-    >
-      {/* Arrow */}
-      <div
-        className={`
-          absolute top-1/2 -translate-y-1/2
-          w-3 h-3 bg-rb-dark/95 border-rb-blue/30
-          rotate-45
-          ${side === 'right'
-            ? '-left-1.5 border-l border-b'
-            : '-right-1.5 border-r border-t'
-          }
-        `}
-      />
+    />
 
-      <div className="flex items-start justify-between mb-3">
-        <p className="text-xs font-bold tracking-widest uppercase text-rb-blue/70">
-          {step.heading}
-        </p>
-        <button
-          onClick={onClose}
-          className="text-rb-gray/40 hover:text-rb-silver transition-colors ml-2 flex-shrink-0 text-lg leading-none"
+    <div className="flex items-start justify-between mb-3">
+      <p className="text-xs font-bold tracking-widest uppercase text-rb-blue/70">
+        {step.heading}
+      </p>
+      <button
+        onClick={onClose}
+        className="text-rb-gray/40 hover:text-rb-silver transition-colors ml-2 flex-shrink-0 text-lg leading-none"
+      >
+        ×
+      </button>
+    </div>
+
+    <ul className="space-y-2">
+      {step.points.map((point: string, i: number) => (
+        <motion.li
+          key={i}
+          initial={{ opacity: 0, x: -6 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: i * 0.06 }}
+          className="flex items-start gap-2 text-xs text-rb-gray leading-relaxed"
         >
-          ×
-        </button>
-      </div>
-
-      <ul className="space-y-2">
-        {step.points.map((point: string, i: number) => (
-          <motion.li
-            key={i}
-            initial={{ opacity: 0, x: -6 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: i * 0.06 }}
-            className="flex items-start gap-2 text-xs text-rb-gray leading-relaxed"
-          >
-            <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-rb-blue flex-shrink-0" />
-            {point}
-          </motion.li>
-        ))}
-      </ul>
-    </motion.div>
-  </AnimatePresence>
+          <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-rb-blue flex-shrink-0" />
+          {point}
+        </motion.li>
+      ))}
+    </ul>
+  </motion.div>
 )
 
 // ─── Mobile step row ─────────────────────────────────────────────────────────
@@ -273,97 +271,85 @@ const MobileStep = ({
   inView,
   active,
   onToggle,
-}: MobileStepProps) => (
-  <motion.div
-    initial={{ opacity: 0, x: -30 }}
-    animate={inView ? { opacity: 1, x: 0 } : {}}
-    transition={{ delay: index * 0.08, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-    className="relative"
-  >
-    {/* Connector line */}
-    {index < steps.length - 1 && (
-      <motion.div
-        initial={{ scaleY: 0 }}
-        animate={inView ? { scaleY: 1 } : {}}
-        transition={{ delay: index * 0.08 + 0.3, duration: 0.4 }}
-        className="absolute left-6 top-14 w-0.5 h-8 bg-gradient-to-b from-rb-blue/40 to-rb-steel/20 origin-top"
-      />
-    )}
+}: MobileStepProps) => {
+  // Ensure component renders even if not inView yet
+  const [, setHasAnimated] = useState(false)
+  
+  useEffect(() => {
+    if (inView) setHasAnimated(true)
+  }, [inView])
 
-    <button
-      onClick={onToggle}
-      className="w-full flex items-center gap-4 text-left group"
-    >
-      {/* Number bubble */}
-      <div className="relative flex-shrink-0">
-        <motion.div
-          animate={active
-            ? { scale: [1, 1.2, 1], opacity: [0.4, 0.8, 0.4] }
-            : { scale: 1, opacity: 0 }
-          }
-          transition={{ duration: 1.5, repeat: active ? Infinity : 0 }}
-          className={`absolute inset-0 rounded-full ${step.glowColor} blur-md`}
-        />
-        <motion.div
-          animate={active ? {} : { scale: [1, 1.08, 1] }}
-          transition={{ duration: 2.5, repeat: Infinity, delay: index * 0.3 }}
-          className={`
-            relative w-12 h-12 rounded-full flex items-center justify-center
-            bg-gradient-to-br ${step.color}
-            text-rb-black font-bold text-sm
-            border-2 ${active ? step.borderColor : 'border-transparent'}
-            transition-all duration-300
-          `}
-        >
-          {step.number}
-        </motion.div>
-      </div>
-
-      {/* Text */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <p className="font-bold text-rb-silver text-sm">{step.title}</p>
-          <motion.span
-            animate={{ rotate: active ? 180 : 0 }}
-            transition={{ duration: 0.3 }}
-            className="text-rb-blue/50 text-xs"
-          >
-            ▾
-          </motion.span>
-        </div>
-        <p className="text-rb-gray/60 text-xs">{step.short}</p>
-      </div>
-    </button>
-
-    {/* Expanded detail */}
-    <AnimatePresence>
-      {active && (
-        <motion.div
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: 'auto', opacity: 1 }}
-          exit={{ height: 0, opacity: 0 }}
-          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="overflow-hidden"
-        >
-          <div className="ml-16 mt-3 mb-2 rounded-xl bg-rb-dark/50 border border-rb-silver/10 p-4">
-            <p className="text-rb-gray text-sm leading-relaxed mb-3">{step.description}</p>
-            <p className="text-xs font-bold tracking-widest uppercase text-rb-blue/60 mb-2">
-              {step.tooltip.heading}
-            </p>
-            <ul className="space-y-1.5">
-              {step.tooltip.points.map((point: string, i: number) => (
-                <li key={i} className="flex items-start gap-2 text-xs text-rb-gray">
-                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-rb-blue flex-shrink-0" />
-                  {point}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </motion.div>
+  return (
+    <div className="relative">
+      {/* Connector line */}
+      {index < steps.length - 1 && (
+        <div className="absolute left-6 top-14 w-0.5 h-8 bg-gradient-to-b from-rb-blue/40 to-rb-steel/20" />
       )}
-    </AnimatePresence>
-  </motion.div>
-)
+
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center gap-4 text-left group"
+      >
+        {/* Number bubble */}
+        <div className="relative flex-shrink-0">
+          <div
+            className={`absolute inset-0 rounded-full ${step.glowColor} blur-md transition-opacity duration-300 ${
+              active ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+          <div
+            className={`
+              relative w-12 h-12 rounded-full flex items-center justify-center
+              bg-gradient-to-br ${step.color}
+              text-rb-black font-bold text-sm
+              border-2 ${active ? step.borderColor : 'border-transparent'}
+              transition-all duration-300
+            `}
+          >
+            {step.number}
+          </div>
+        </div>
+
+        {/* Text */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <p className="font-bold text-rb-silver text-sm">{step.title}</p>
+            <span
+              className={`text-rb-blue/50 text-xs transition-transform duration-300 ${
+                active ? 'rotate-180' : ''
+              }`}
+            >
+              ▾
+            </span>
+          </div>
+          <p className="text-rb-gray/60 text-xs">{step.short}</p>
+        </div>
+      </button>
+
+      {/* Expanded detail */}
+      <div
+        className={`overflow-hidden transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          active ? 'max-h-[500px] opacity-100 mt-3' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <div className="ml-16 rounded-xl bg-rb-dark/50 border border-rb-silver/10 p-4">
+          <p className="text-rb-gray text-sm leading-relaxed mb-3">{step.description}</p>
+          <p className="text-xs font-bold tracking-widest uppercase text-rb-blue/60 mb-2">
+            {step.tooltip.heading}
+          </p>
+          <ul className="space-y-1.5">
+            {step.tooltip.points.map((point: string, i: number) => (
+              <li key={i} className="flex items-start gap-2 text-xs text-rb-gray">
+                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-rb-blue flex-shrink-0" />
+                {point}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 // ─── Desktop flow node ───────────────────────────────────────────────────────
 
@@ -445,8 +431,8 @@ const FlowNode = ({
       </button>
     </div>
 
-    {/* Tooltip - only show for active step and positioned correctly */}
-    <AnimatePresence>
+    {/* Tooltip */}
+    <AnimatePresence mode="wait">
       {active && (
         <div
           className="absolute z-50"
@@ -462,13 +448,14 @@ const FlowNode = ({
     </AnimatePresence>
   </motion.div>
 )
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export const HowItWorks = () => {
   const containerRef = useRef<HTMLDivElement>(null)
-  const [activeStep, setActiveStep] = useState<string | null>('browse')
-  const [headerRef, headerInView] = useInView({ triggerOnce: true, threshold: 0.15 })
-  const [flowRef, flowInView] = useInView({ triggerOnce: true, threshold: 0.05 })
+  const [activeStep, setActiveStep] = useState<string | null>(null)
+  const [headerRef, headerInView] = useInView({ triggerOnce: true, threshold: 0.15, rootMargin: '50px' })
+  const [flowRef, flowInView] = useInView({ triggerOnce: true, threshold: 0.05, rootMargin: '50px' })
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -477,7 +464,6 @@ export const HowItWorks = () => {
   const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '25%'])
 
   const toggle = (id: string) => setActiveStep((prev) => (prev === id ? null : id))
-
 
   return (
     <section
@@ -563,7 +549,7 @@ export const HowItWorks = () => {
               key={step.id}
               step={step}
               index={i}
-              inView={flowInView}
+              inView={true}
               active={activeStep === step.id}
               onToggle={() => toggle(step.id)}
             />
@@ -584,7 +570,7 @@ export const HowItWorks = () => {
               />
             </div>
 
-            {/* Flow progress overlay — animates down as steps activate */}
+            {/* Flow progress overlay */}
             <motion.div
               className="absolute left-1/2 top-0 w-0.5 -translate-x-1/2 bg-rb-blue/80 origin-top"
               animate={{
