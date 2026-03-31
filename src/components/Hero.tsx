@@ -1,11 +1,28 @@
 import { motion } from 'framer-motion'
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 
 export const Hero = () => {
   const sectionRef = useRef<HTMLElement>(null)
   const rightColRef = useRef<HTMLDivElement>(null)
-  const [headerRef, headerInView] = useInView({ triggerOnce: true, threshold: 0.1 })
+
+  const [headerRef, headerInView] = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+  })
+
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [isHovering, setIsHovering] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640)
+    }
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const scrollToContact = () => {
     document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })
@@ -14,28 +31,6 @@ export const Hero = () => {
   const scrollToProjects = () => {
     document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })
   }
-
-  useEffect(() => {
-    const rightCol = rightColRef.current
-    if (!rightCol) return
-
-    const handleWheel = (e: WheelEvent) => {
-      if (window.innerWidth < 1024) return
-
-      const { scrollTop, scrollHeight, clientHeight } = rightCol
-      const atTop = scrollTop === 0
-      const atBottom = scrollTop + clientHeight >= scrollHeight - 1
-
-      if (atTop && e.deltaY < 0) return
-      if (atBottom && e.deltaY > 0) return
-
-      e.preventDefault()
-      rightCol.scrollTop += e.deltaY
-    }
-
-    rightCol.addEventListener('wheel', handleWheel, { passive: false })
-    return () => rightCol.removeEventListener('wheel', handleWheel)
-  }, [])
 
   const descriptions = [
     {
@@ -70,6 +65,14 @@ export const Hero = () => {
     },
   ]
 
+  useEffect(() => {
+    if (isHovering) return
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => prev + 1)
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [isHovering])
+
   return (
     <section id="home" ref={sectionRef} className="relative bg-rb-black overflow-hidden">
 
@@ -89,102 +92,35 @@ export const Hero = () => {
         />
       </div>
 
-      {/* Content */}
       <div className="relative z-10 container mx-auto px-4">
         <div className="flex flex-col lg:flex-row gap-12">
 
-          {/* LEFT COLUMN */}
+          {/* LEFT */}
           <div
             ref={headerRef}
             className="lg:w-1/2 lg:sticky lg:top-24 lg:h-screen flex flex-col justify-center pt-28 pb-8"
           >
-            {/* HEADLINE */}
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={headerInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.7 }}
               className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold leading-tight mt-6"
             >
-              <span className="text-rb-silver">Every kind of</span>
-              <br />
-
-              {/* HELP — HAND-DRAWN CIRCLE */}
-              <span className="relative inline-block">
-                <span className="text-rb-silver italic relative z-10">help</span>
-
-                <motion.svg
-                  className="absolute -inset-3 w-[calc(100%+1.5rem)] h-[calc(100%+1.5rem)] pointer-events-none"
-                  viewBox="0 0 200 100"
-                  initial={{ opacity: 0 }}
-                  animate={headerInView ? { opacity: 1 } : {}}
-                >
-                  <motion.path
-                    d="M20,50 C20,10 180,10 180,50 C180,90 20,90 20,50 Z"
-                    fill="none"
-                    stroke="#A7C7E7"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    style={{ filter: 'drop-shadow(0 0 6px rgba(167,199,231,0.4))' }}
-                    initial={{ pathLength: 0 }}
-                    animate={headerInView ? { pathLength: 1 } : {}}
-                    transition={{ duration: 1.4, ease: 'easeInOut', delay: 0.3 }}
-                  />
-                </motion.svg>
-              </span>
-
-              <br />
-              <span className="text-rb-silver">students</span>
-              <br />
-              <span className="text-rb-blue">actually need</span>
+              <span className="text-rb-silver">Every kind of</span><br />
+              <span className="text-rb-blue">help students actually need</span>
             </motion.h1>
 
-            {/* Divider */}
-            <motion.div
-              initial={{ scaleX: 0 }}
-              animate={headerInView ? { scaleX: 1 } : {}}
-              transition={{ delay: 0.4 }}
-              className="w-24 h-0.5 bg-gradient-to-r from-rb-blue to-rb-steel mt-6 origin-left"
-            />
-
-            {/* SUBTEXT */}
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={headerInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.3 }}
-              className="text-rb-gray mt-5 text-base sm:text-lg leading-relaxed max-w-sm"
+              className="text-rb-gray mt-5 text-base sm:text-lg max-w-sm"
             >
-              Whether you are stuck at midnight or defending a project —{' '}
-
-              {/* AVITAL — SIGNATURE CIRCLE */}
-              <span className="relative inline-block">
-                <span className="text-rb-silver font-semibold relative z-10">
-                  Avital
-                </span>
-
-                <motion.svg
-                  className="absolute -inset-2 w-[calc(100%+1.2rem)] h-[calc(100%+1.2rem)] pointer-events-none"
-                  viewBox="0 0 200 100"
-                  initial={{ opacity: 0 }}
-                  animate={headerInView ? { opacity: 1 } : {}}
-                >
-                  <motion.path
-                    d="M25,50 Q25,15 100,10 Q175,15 175,50 Q175,85 100,90 Q25,85 25,50 Z"
-                    fill="none"
-                    stroke="#A7C7E7"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    initial={{ pathLength: 0 }}
-                    animate={headerInView ? { pathLength: 1 } : {}}
-                    transition={{ duration: 1.2, ease: 'easeInOut', delay: 0.5 }}
-                  />
-                </motion.svg>
-              </span>
-
-              {' '}connects you with someone who has been exactly where you are.
+              Whether you are stuck at midnight or defending a project —
+              <span className="text-rb-silver font-semibold"> Avital </span>
+              connects you with someone who has been exactly where you are.
             </motion.p>
 
-            {/* CTA Buttons */}
-            <motion.div className="flex gap-4 mt-8">
+            <div className="flex gap-4 mt-8">
               <button
                 onClick={scrollToContact}
                 className="px-6 py-2.5 bg-gradient-to-r from-rb-blue to-rb-steel text-rb-black font-bold rounded-full hover:scale-105 transition"
@@ -197,28 +133,107 @@ export const Hero = () => {
               >
                 View Offers →
               </button>
-            </motion.div>
-
+            </div>
           </div>
 
-          {/* RIGHT COLUMN - Scrollable with NO VISIBLE SCROLLBAR */}
+          {/* RIGHT */}
           <div
             ref={rightColRef}
-            className="lg:w-1/2 lg:h-screen lg:overflow-y-auto pt-0 lg:pt-28 pb-20 hide-scrollbar"
+            className="lg:w-1/2 lg:h-screen flex flex-col justify-center pb-20"
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
           >
-            <div className="space-y-5">
-              {descriptions.map((item, index) => (
-                <motion.div
-                  key={item.title}
-                  initial={{ opacity: 0, x: 50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.08 }}
-                  className="p-6 rounded-2xl bg-rb-dark/40 border border-rb-silver/15"
-                >
-                  <h3 className="text-lg font-bold text-rb-silver">{item.title}</h3>
-                  <p className="text-rb-gray text-sm mt-2">{item.content}</p>
-                </motion.div>
-              ))}
+            <div className="relative h-[420px] sm:h-[520px] flex items-center justify-center overflow-hidden isolate">
+
+              {descriptions.map((item, i) => {
+                const length = descriptions.length
+                let position = i - (currentIndex % length)
+
+                if (position > length / 2) position -= length
+                if (position < -length / 2) position += length
+
+                const baseSpacing = isMobile ? 110 : 140
+                const y = position * baseSpacing
+                const yAdjusted = position === 0 ? y - 10 : y
+
+                const scale =
+                  position === 0
+                    ? 1
+                    : Math.abs(position) === 1
+                    ? isMobile ? 0.9 : 0.75
+                    : Math.abs(position) === 2
+                    ? 0.55
+                    : 0.4
+
+                const opacity =
+                  position === 0
+                    ? 1
+                    : Math.abs(position) === 1
+                    ? 0.75
+                    : Math.abs(position) === 2
+                    ? 0.35
+                    : 0
+
+                const height =
+                  position === 0
+                    ? (isMobile ? 260 : 300)
+                    : Math.abs(position) === 1
+                    ? (isMobile ? 200 : 220)
+                    : 160
+
+                const zIndex = position === 0 ? 50 : 20 - Math.abs(position)
+
+                return (
+                  <motion.div
+                    key={i}
+                    animate={{ y: yAdjusted, scale, opacity, height }}
+                    transition={{
+                      duration: 1,
+                      ease: [0.16, 1, 0.3, 1],
+                      height: { duration: 0.9 },
+                    }}
+                    style={{
+                      zIndex,
+                      filter:
+                        position === 0
+                          ? 'blur(0px)'
+                          : `blur(${Math.min(Math.abs(position) * 1.5, 4)}px)`,
+                    }}
+                    className={`absolute left-0 right-0 mx-auto border overflow-hidden ${
+                      position === 0
+                        ? 'w-full max-w-lg rounded-3xl bg-gradient-to-br from-rb-blue/20 to-rb-steel/10 border-rb-blue/30 shadow-2xl shadow-rb-blue/20'
+                        : 'w-[90%] max-w-sm rounded-2xl bg-rb-dark/20 border-rb-silver/10'
+                    }`}
+                  >
+                    <div className={`text-center ${position === 0 ? 'px-6 py-7' : 'px-4 py-4'}`}>
+
+                      <span className="inline-block px-3 py-1 rounded-full border border-rb-blue/30 bg-rb-blue/10 text-rb-blue text-xs font-semibold uppercase mb-2">
+                        {item.tag}
+                      </span>
+
+                      <h3 className={`font-bold text-rb-silver ${
+                        position === 0 ? 'text-2xl mb-3' : 'text-base mb-1'
+                      }`}>
+                        {item.title}
+                      </h3>
+
+                      <p className={`text-rb-gray ${
+                        position === 0 ? 'text-base leading-relaxed' : 'text-xs'
+                      }`}>
+                        {position === 0
+                          ? item.content
+                          : item.content.substring(0, 60) + '...'}
+                      </p>
+
+                    </div>
+                  </motion.div>
+                )
+              })}
+
+              {/* gradients */}
+              <div className="absolute top-0 w-full h-28 bg-gradient-to-b from-rb-black via-rb-black/80 to-transparent pointer-events-none" />
+              <div className="absolute bottom-0 w-full h-28 bg-gradient-to-t from-rb-black via-rb-black/80 to-transparent pointer-events-none" />
+
             </div>
           </div>
 
