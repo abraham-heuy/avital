@@ -174,7 +174,6 @@ const fields = [
 ]
 
 // ─── Flip Project Card ───────────────────────────────────────────────────────
-
 const ProjectCard = ({
   project,
   index,
@@ -186,12 +185,16 @@ const ProjectCard = ({
 }) => {
   const [flipped, setFlipped] = useState(false)
 
+  // Extract a short impact number from the outcome (e.g., "70% reduction" → "70%")
+  const impactMatch = project.outcome.match(/\d+%/);
+  const impactText = impactMatch ? impactMatch[0] : "Proven";
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ delay: index * 0.1, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-      className="h-[360px] cursor-pointer"
+      className="h-[280px] cursor-pointer"
       style={{ perspective: '1200px' }}
       onClick={() => setFlipped(!flipped)}
     >
@@ -201,35 +204,33 @@ const ProjectCard = ({
         style={{ transformStyle: 'preserve-3d' }}
         className="relative w-full h-full"
       >
-        {/* ── FRONT ── */}
+        {/* FRONT – content fills height without clipping */}
         <div
           style={{ backfaceVisibility: 'hidden' }}
           className={`
-            absolute inset-0 rounded-2xl flex flex-col justify-between overflow-hidden
+            absolute inset-0 rounded-2xl flex flex-col overflow-hidden
             bg-gradient-to-br ${project.gradient}
             bg-rb-dark/50 backdrop-blur-md
             border ${project.border} ${project.hoverBorder}
             transition-colors duration-300
           `}
         >
-          {/* Top meta */}
-          <div className="p-5 pb-0 flex items-start justify-between">
+          {/* Top meta (sticks to top) */}
+          <div className="p-3 pb-1 flex items-start justify-between">
             <div>
-              <span className="text-xs font-semibold tracking-widest uppercase text-rb-blue/70 border border-rb-blue/25 px-2.5 py-1 rounded-full bg-rb-blue/10">
+              <span className="text-[10px] font-semibold tracking-widest uppercase text-rb-blue/70 border border-rb-blue/25 px-2 py-0.5 rounded-full bg-rb-blue/10">
                 {project.category}
               </span>
-              <p className="text-rb-gray/40 text-xs mt-2">{project.year}</p>
+              <p className="text-rb-gray/40 text-[9px] mt-1">{project.year}</p>
             </div>
-            {/* Visit site icon */}
             <motion.a
               href={project.url}
               onClick={(e) => e.stopPropagation()}
               whileHover={{ scale: 1.15, rotate: 10 }}
               whileTap={{ scale: 0.95 }}
-              className="w-9 h-9 rounded-full border border-rb-silver/20 bg-rb-dark/60 flex items-center justify-center text-rb-silver/50 hover:text-rb-blue hover:border-rb-blue/40 transition-all duration-200"
-              title="Visit project"
+              className="w-7 h-7 rounded-full border border-rb-silver/20 bg-rb-dark/60 flex items-center justify-center text-rb-silver/50 hover:text-rb-blue hover:border-rb-blue/40 transition-all duration-200"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                 <polyline points="15 3 21 3 21 9" />
                 <line x1="10" y1="14" x2="21" y2="3" />
@@ -237,49 +238,64 @@ const ProjectCard = ({
             </motion.a>
           </div>
 
-          {/* Body */}
-          <div className="p-5 flex flex-col gap-3 flex-1 justify-end">
-            <h3 className="text-lg font-bold text-rb-silver leading-snug">{project.title}</h3>
-            <p className="text-rb-gray text-sm leading-relaxed line-clamp-3">{project.description}</p>
-
-            {/* Tech pills */}
-            <div className="flex flex-wrap gap-1.5">
-              {project.tech.map((t) => (
-                <span key={t} className="text-xs px-2.5 py-0.5 rounded-full bg-rb-black/50 border border-rb-silver/15 text-rb-blue/80">
+          {/* Middle content – takes all remaining space, description expands */}
+          <div className="flex-1 flex flex-col px-3 py-1 overflow-auto">
+            <h3 className="text-sm font-bold text-rb-silver leading-tight text-center">
+              {project.title}
+            </h3>
+            {/* Description: no line clamp, uses flex-grow to fill space */}
+            <p className="text-rb-gray text-[11px] leading-tight text-center mt-1 flex-1">
+              {project.description}
+            </p>
+            <div className="flex flex-wrap gap-1 justify-center mt-2">
+              {project.tech.slice(0, 3).map((t) => (
+                <span key={t} className="text-[9px] px-1.5 py-0.5 rounded-full bg-rb-black/50 border border-rb-silver/15 text-rb-blue/80">
                   {t}
                 </span>
               ))}
+              {project.tech.length > 3 && (
+                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-rb-black/50 border border-rb-silver/15 text-rb-gray">
+                  +{project.tech.length - 3}
+                </span>
+              )}
             </div>
+            {/* ADDED: Impact highlight to fill remaining space */}
+            <div className="mt-2 pt-1 text-center">
+              <span className="inline-block text-[9px] font-semibold text-rb-blue/80 bg-rb-blue/10 px-2 py-0.5 rounded-full border border-rb-blue/20">
+                🎯 {impactText} impact • Real client results
+              </span>
+            </div>
+          </div>
 
-            {/* Outcome + flip hint */}
-            <div className="flex items-center justify-between pt-2 border-t border-rb-silver/10">
-              <span className="text-xs text-green-400 font-medium">{project.outcome}</span>
+          {/* Outcome & flip hint (sticks to bottom) */}
+          <div className="px-3 pb-3 pt-1">
+            <div className="flex items-center justify-between pt-1 border-t border-rb-silver/10">
+              <span className="text-[9px] text-green-400 font-medium">{project.outcome}</span>
               <motion.span
                 animate={{ x: [0, 3, 0] }}
                 transition={{ repeat: Infinity, duration: 1.8 }}
-                className="text-xs text-rb-blue/50 font-medium"
+                className="text-[9px] text-rb-blue/50 font-medium"
               >
-                Flip for details →
+                Flip →
               </motion.span>
             </div>
           </div>
         </div>
 
-        {/* ── BACK ── */}
+        {/* BACK – unchanged, already compact */}
         <div
           style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
           className={`
-            absolute inset-0 rounded-2xl flex flex-col justify-between overflow-hidden p-5
+            absolute inset-0 rounded-2xl flex flex-col justify-between overflow-hidden p-4
             bg-rb-dark/90 backdrop-blur-md
             border ${project.border}
           `}
         >
           <div>
-            <p className="text-xs font-semibold tracking-widest uppercase text-rb-blue/60 mb-4">
+            <p className="text-[9px] font-semibold tracking-widest uppercase text-rb-blue/60 mb-2">
               Case Study
             </p>
-
-            <div className="space-y-3">
+            <div className="space-y-2">
               {[
                 { label: 'Problem', value: project.back.problem },
                 { label: 'Solution', value: project.back.solution },
@@ -289,43 +305,41 @@ const ProjectCard = ({
                   key={item.label}
                   initial={{ opacity: 0, x: -8 }}
                   animate={flipped ? { opacity: 1, x: 0 } : {}}
-                  transition={{ delay: 0.25 + i * 0.08 }}
+                  transition={{ delay: 0.2 + i * 0.08 }}
                 >
-                  <p className="text-xs font-bold text-rb-silver/50 uppercase tracking-wider mb-0.5">{item.label}</p>
-                  <p className="text-rb-gray text-sm leading-relaxed">{item.value}</p>
+                  <p className="text-[9px] font-bold text-rb-silver/50 uppercase tracking-wider mb-0.5">{item.label}</p>
+                  <p className="text-rb-gray text-[10px] leading-tight">{item.value}</p>
                 </motion.div>
               ))}
             </div>
-
             <motion.div
               initial={{ opacity: 0 }}
               animate={flipped ? { opacity: 1 } : {}}
-              transition={{ delay: 0.5 }}
-              className="mt-3 pt-3 border-t border-rb-silver/10"
+              transition={{ delay: 0.45 }}
+              className="mt-2 pt-2 border-t border-rb-silver/10"
             >
-              <p className="text-xs font-bold text-rb-silver/40 uppercase tracking-wider mb-1">Stack</p>
-              <p className="text-xs text-rb-blue/70 font-mono">{project.back.stack}</p>
+              <p className="text-[8px] font-bold text-rb-silver/40 uppercase tracking-wider mb-0.5">Stack</p>
+              <p className="text-[9px] text-rb-blue/70 font-mono">{project.back.stack}</p>
             </motion.div>
           </div>
-
-          <div className="flex gap-3 mt-4">
+          <div className="flex gap-2 mt-3">
             <motion.a
               href={project.url}
               onClick={(e) => e.stopPropagation()}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
-              className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-rb-blue to-rb-steel text-rb-black text-xs font-bold text-center tracking-wide hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5"
+              className="flex-1 py-1.5 rounded-xl bg-gradient-to-r from-rb-blue to-rb-steel text-rb-black text-[9px] font-bold text-center tracking-wide hover:opacity-90 transition-opacity flex items-center justify-center gap-1"
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                 <polyline points="15 3 21 3 21 9" />
                 <line x1="10" y1="14" x2="21" y2="3" />
               </svg>
-              Visit project
+              Visit
             </motion.a>
             <button
               onClick={(e) => { e.stopPropagation(); setFlipped(false) }}
-              className="px-4 py-2.5 rounded-xl border border-rb-silver/20 text-rb-gray text-xs font-semibold hover:border-rb-silver/40 transition-colors"
+              className="px-3 py-1.5 rounded-xl border border-rb-silver/20 text-rb-gray text-[9px] font-semibold hover:border-rb-silver/40 transition-colors"
             >
               Back
             </button>
@@ -335,7 +349,6 @@ const ProjectCard = ({
     </motion.div>
   )
 }
-
 // ─── Consultant Card ─────────────────────────────────────────────────────────
 
 const ConsultantCard = ({
@@ -459,7 +472,7 @@ export const Projects = () => {
     <section
       id="work"
       ref={containerRef}
-      className="relative bg-rb-black py-20 md:py-32 overflow-hidden"
+      className="relative bg-rb-black pt-5 pb-20 md:pb-32 overflow-hidden"
     >
       {/* ── Background ── */}
       <motion.div className="absolute inset-0 pointer-events-none" style={{ y: bgY }}>

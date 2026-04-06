@@ -16,7 +16,7 @@ export const MainPage = () => {
       transition={{ duration: 0.8 }}
       className="min-h-screen bg-rb-black overflow-x-hidden w-full"
     >
-      <div className="w-full overflow-x-hidden">
+      <div className="w-full overflow-x-hidden flex flex-col">
         <Navigation />
         <Hero />
         <Services />

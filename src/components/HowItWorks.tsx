@@ -469,7 +469,7 @@ export const HowItWorks = () => {
     <section
       id="how-it-works"
       ref={containerRef}
-      className="relative bg-rb-black py-20 md:py-32 overflow-hidden"
+      className="relative bg-rb-black pt-0 pb-20 md:pb-32 overflow-hidden"
     >
       {/* ── Background ── */}
       <motion.div className="absolute inset-0 pointer-events-none" style={{ y: bgY }}>

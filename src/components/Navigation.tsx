@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.png'
 
@@ -35,6 +35,7 @@ const megaMenuData: Record<string, MegaMenuItem[]> = {
         { title: 'Consultants', description: 'About our consultants', link: '/faqs' },
     ],
 }
+
 export const Navigation = () => {
     const navigate = useNavigate()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -43,13 +44,29 @@ export const Navigation = () => {
     const [scrolled, setScrolled] = useState(false)
 
     const navItems = ['Services', 'Projects', 'Resources', 'FAQs']
+
     useEffect(() => {
         const handleScroll = () => {
             setScrolled(window.scrollY > 50)
         }
         window.addEventListener('scroll', handleScroll)
-        return () => window.removeEventListener('scroll', handleScroll)
+        
+        return () => {
+            window.removeEventListener('scroll', handleScroll)
+        }
     }, [])
+
+    // Prevent body scroll when mobile menu is open
+    useEffect(() => {
+        if (isMobileMenuOpen) {
+            document.body.style.overflow = 'hidden'
+        } else {
+            document.body.style.overflow = 'unset'
+        }
+        return () => {
+            document.body.style.overflow = 'unset'
+        }
+    }, [isMobileMenuOpen])
 
     const handleMouseEnter = (item: string) => {
         if (hoverTimeout) clearTimeout(hoverTimeout)
@@ -67,7 +84,6 @@ export const Navigation = () => {
         setIsMobileMenuOpen(false)
         setActiveMegaMenu(null)
         
-        // Check if it's a route (starts with /) or a section ID (starts with #)
         if (link.startsWith('/')) {
             navigate(link)
         } else if (link.startsWith('#')) {
@@ -75,7 +91,6 @@ export const Navigation = () => {
             if (element) {
                 element.scrollIntoView({ behavior: 'smooth' })
             } else {
-                // If on a different page, navigate to main first then scroll
                 navigate('/main')
                 setTimeout(() => {
                     const el = document.querySelector(link)
@@ -84,7 +99,6 @@ export const Navigation = () => {
             }
         }
     }
-
 
     return (
         <>
@@ -95,19 +109,22 @@ export const Navigation = () => {
                     <div className="flex items-center justify-between">
                         {/* Logo and Brand */}
                         <motion.div
-    initial={{ opacity: 0, x: -20 }}
-    animate={{ opacity: 1, x: 0 }}
-    className="flex items-center gap-3 cursor-pointer group ml-10"
-    onClick={() => navigate('/main')}
->
-    <div className="w-24 h-34 rounded-xl overflow-hidden shadow-md group-hover:shadow-glow transition-all duration-300">
-        <img 
-            src={logo} 
-            alt="Avital Logo" 
-            className="w-full h-full object-cover"
-        />
-    </div>
-</motion.div>
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="flex items-center gap-3 cursor-pointer group flex-shrink-0"
+                            onClick={() => navigate('/main')}
+                        >
+                            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md group-hover:shadow-glow transition-all duration-300">
+                                <img 
+                                    src={logo} 
+                                    alt="Avital Logo" 
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+                            <span className="text-xl font-display font-bold text-white hidden sm:inline">
+                                a<span className="text-rb-blue">V</span>ital
+                            </span>
+                        </motion.div>
 
                         {/* Desktop Navigation */}
                         <div className="hidden lg:flex items-center gap-1">
@@ -126,39 +143,33 @@ export const Navigation = () => {
                                         {item}
                                     </button>
 
-                                    <AnimatePresence>
-                                        {activeMegaMenu === item && (
-                                            <motion.div
-                                                initial={{ opacity: 0, y: 10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, y: 10 }}
-                                                transition={{ duration: 0.2 }}
-                                                className="absolute top-full left-0 mt-2 w-[500px] rounded-xl overflow-hidden z-50"
-                                                style={{
-                                                    background: 'rgba(18, 20, 23, 0.95)',
-                                                    backdropFilter: 'blur(12px)',
-                                                    border: '1px solid rgba(255, 255, 255, 0.1)'
-                                                }}
-                                            >
-                                                <div className="grid grid-cols-2 gap-0">
-                                                    {megaMenuData[item].map((menuItem) => (
-                                                        <button
-                                                            key={menuItem.title}
-                                                            onClick={() => handleNavigation(menuItem.link)}
-                                                            className="flex flex-col items-start gap-1 p-4 transition-all duration-300 text-left hover:bg-white/10 group"
-                                                        >
-                                                            <div className="font-semibold text-white/80 group-hover:text-rb-blue transition-colors">
-                                                                {menuItem.title}
-                                                            </div>
-                                                            <div className="text-sm text-white/50 group-hover:text-white/70 transition-colors">
-                                                                {menuItem.description}
-                                                            </div>
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
+                                    {activeMegaMenu === item && (
+                                        <div
+                                            className="absolute top-full left-0 mt-2 w-[500px] rounded-xl overflow-hidden z-50"
+                                            style={{
+                                                background: 'rgba(18, 20, 23, 0.95)',
+                                                backdropFilter: 'blur(12px)',
+                                                border: '1px solid rgba(255, 255, 255, 0.1)'
+                                            }}
+                                        >
+                                            <div className="grid grid-cols-2 gap-0">
+                                                {megaMenuData[item].map((menuItem) => (
+                                                    <button
+                                                        key={menuItem.title}
+                                                        onClick={() => handleNavigation(menuItem.link)}
+                                                        className="flex flex-col items-start gap-1 p-4 transition-all duration-300 text-left hover:bg-white/10 group"
+                                                    >
+                                                        <div className="font-semibold text-white/80 group-hover:text-rb-blue transition-colors">
+                                                            {menuItem.title}
+                                                        </div>
+                                                        <div className="text-sm text-white/50 group-hover:text-white/70 transition-colors">
+                                                            {menuItem.description}
+                                                        </div>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
@@ -176,66 +187,101 @@ export const Navigation = () => {
                         {/* Mobile Menu Button */}
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="lg:hidden text-white focus:outline-none relative z-50 w-8 h-8 flex items-center justify-center"
+                            className="lg:hidden text-white focus:outline-none relative z-50 w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                            aria-label="Toggle menu"
                         >
-                            <div className="w-6 h-5 flex flex-col justify-between">
-                                <span className={`w-full h-0.5 bg-white transform transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+                            <div className="w-5 h-5 flex flex-col justify-between">
+                                <span className={`w-full h-0.5 bg-white transform transition-all duration-300 origin-left ${isMobileMenuOpen ? 'rotate-45 translate-x-0.5' : ''}`} />
                                 <span className={`w-full h-0.5 bg-white transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`} />
-                                <span className={`w-full h-0.5 bg-white transform transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+                                <span className={`w-full h-0.5 bg-white transform transition-all duration-300 origin-left ${isMobileMenuOpen ? '-rotate-45 translate-x-0.5' : ''}`} />
                             </div>
                         </button>
                     </div>
                 </div>
             </nav>
 
-            {/* Mobile Menu */}
-            <AnimatePresence>
-                {isMobileMenuOpen && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 lg:hidden"
-                        style={{
-                            background: 'rgba(18, 20, 23, 0.98)',
-                            backdropFilter: 'blur(12px)'
-                        }}
-                    >
-                        <div className="flex flex-col h-full pt-20 px-6 overflow-y-auto">
-                            <button
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className="absolute top-4 right-4 text-white text-3xl w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10"
-                            >
-                                ×
-                            </button>
-                            
-                            {navItems.map((item) => (
-                                <div key={item} className="mb-6">
-                                    <div className="text-xl font-bold text-rb-blue mb-3">{item}</div>
-                                    <div className="grid gap-3">
-                                        {megaMenuData[item].map((menuItem) => (
+            {/* Mobile Menu - Removed AnimatePresence to fix the error */}
+            {isMobileMenuOpen && (
+                <div
+                    className="fixed inset-0 z-40 lg:hidden"
+                    style={{
+                        background: 'rgba(18, 20, 23, 0.98)',
+                        backdropFilter: 'blur(12px)'
+                    }}
+                >
+                    <div className="flex flex-col h-full pt-24 px-6 pb-8 overflow-y-auto">
+                        {/* Close button */}
+                        <button
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="absolute top-5 right-5 text-white text-2xl w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                            aria-label="Close menu"
+                        >
+                            ×
+                        </button>
+                        
+                        {/* Navigation items */}
+                        <div className="space-y-8">
+                            {navItems.map((item, idx) => (
+                                <div
+                                    key={item}
+                                    className="border-b border-rb-silver/10 pb-4"
+                                    style={{
+                                        animation: `fadeInUp 0.3s ease-out ${idx * 0.05}s forwards`,
+                                        opacity: 0,
+                                        transform: 'translateY(20px)'
+                                    }}
+                                >
+                                    <div className="text-lg font-bold text-rb-blue mb-3">{item}</div>
+                                    <div className="grid gap-2">
+                                        {megaMenuData[item].map((menuItem, menuIdx) => (
                                             <button
                                                 key={menuItem.title}
                                                 onClick={() => handleNavigation(menuItem.link)}
                                                 className="flex flex-col items-start gap-1 p-3 rounded-lg transition-all duration-300 text-left w-full hover:bg-white/10"
+                                                style={{
+                                                    animation: `fadeInUp 0.3s ease-out ${idx * 0.05 + menuIdx * 0.03}s forwards`,
+                                                    opacity: 0,
+                                                    transform: 'translateY(20px)'
+                                                }}
                                             >
-                                                <div className="font-medium text-white">{menuItem.title}</div>
-                                                <div className="text-sm text-white/60">{menuItem.description}</div>
+                                                <div className="font-medium text-white text-sm">{menuItem.title}</div>
+                                                <div className="text-xs text-white/60">{menuItem.description}</div>
                                             </button>
                                         ))}
                                     </div>
                                 </div>
                             ))}
-                            <button
-                                onClick={() => handleNavigation('#contact')}
-                                className="w-full mt-6 px-6 py-3 bg-gradient-to-r from-rb-blue to-rb-steel text-black font-semibold rounded-full hover:shadow-glow transition-all duration-300"
-                            >
-                                Get Started →
-                            </button>
                         </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                        
+                        {/* CTA Button */}
+                        <button
+                            onClick={() => handleNavigation('#contact')}
+                            className="w-full mt-8 px-6 py-3 bg-gradient-to-r from-rb-blue to-rb-steel text-black font-semibold rounded-full hover:shadow-glow transition-all duration-300"
+                            style={{
+                                animation: 'fadeInUp 0.3s ease-out 0.4s forwards',
+                                opacity: 0,
+                                transform: 'translateY(20px)'
+                            }}
+                        >
+                            Get Started →
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Add CSS for animations */}
+            <style>{`
+                @keyframes fadeInUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(20px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+            `}</style>
         </>
     )
 }

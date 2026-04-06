@@ -351,7 +351,7 @@ export const Pricing = () => {
     <section
       id="projects"
       ref={containerRef}
-      className="relative bg-rb-black py-20 md:py-32 overflow-hidden"
+      className="relative bg-rb-black overflow-hidden"
     >
       {/* ── Background — same as Hero & Services ── */}
       <motion.div className="absolute inset-0 pointer-events-none" style={{ y: bgY }}>
