@@ -157,7 +157,7 @@ const FlipCard = ({ service, index, inView }: { service: typeof services[0], ind
         <div
           style={{ backfaceVisibility: 'hidden' }}
           className={`
-            absolute inset-0 rounded-2xl p-6 flex flex-col justify-between
+            absolute inset-0 rounded-2xl p-10 flex flex-col justify-between
             bg-gradient-to-br ${service.accent}
             bg-rb-dark/40 backdrop-blur-md
             border ${service.border}

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
+import logo from '../assets/logo.png'
 
 export const Footer = () => {
   const navigate = useNavigate()
@@ -29,7 +30,6 @@ export const Footer = () => {
     <footer className="relative bg-rb-black border-t border-rb-silver/10 overflow-hidden">
       {/* Background - matching other components (grid overlay + blobs) */}
       <div className="absolute inset-0 pointer-events-none">
-        {/* Slow-drifting blobs */}
         <motion.div
           className="absolute w-[400px] h-[400px] rounded-full bg-rb-blue/5 blur-3xl"
           animate={{ x: [0, 30, 0], y: [0, -20, 0] }}
@@ -48,7 +48,6 @@ export const Footer = () => {
           transition={{ duration: 14, repeat: Infinity, ease: 'linear' }}
           style={{ left: '40%', top: '50%' }}
         />
-        {/* Subtle grid overlay - matching all other sections */}
         <div
           className="absolute inset-0 opacity-[0.025]"
           style={{
@@ -60,32 +59,29 @@ export const Footer = () => {
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-12 md:py-16">
-        
         {/* Main Footer Grid - Mobile first */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
-          
           {/* Brand Column */}
-          <div className="text-center sm:text-left">
-            <div 
-              onClick={navigateToMain}
-              className="flex items-center justify-center sm:justify-start gap-2 mb-4 cursor-pointer group"
-            >
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-rb-blue to-rb-steel flex items-center justify-center group-hover:shadow-glow transition-all duration-300">
-                <span className="text-rb-black font-bold text-sm">A</span>
-              </div>
-              <span className="text-xl font-display font-bold text-rb-silver group-hover:text-rb-blue transition-colors">
-                a<span className="text-rb-blue">V</span>ital
-              </span>
-            </div>
-            <p className="text-rb-gray text-sm leading-relaxed">
-              Student tech consultation for complex projects. Connecting ambitious students with experienced consultants.
-            </p>
-            <div className="flex justify-center sm:justify-start gap-4 mt-4">
-              <span className="text-xs text-rb-blue font-medium">50+ Consultants</span>
-              <span className="text-xs text-rb-gray">•</span>
-              <span className="text-xs text-rb-blue font-medium">100+ Projects</span>
-            </div>
-          </div>
+          <div className="text-center sm:text-left -translate-y-11">
+  <div 
+    onClick={navigateToMain}
+    className="flex items-center justify-center sm:justify-start gap-2 cursor-pointer group"
+  >
+    <img 
+      src={logo} 
+      alt="Avital Logo" 
+      className="w-24 h-24 rounded-lg object-cover group-hover:shadow-glow transition-all duration-300"
+    />
+  </div>
+  <p className="text-rb-gray text-sm leading-relaxed mt-2">
+    Student tech consultation for complex projects. Connecting ambitious students with experienced consultants.
+  </p>
+  <div className="flex justify-center sm:justify-start gap-4 mt-4">
+    <span className="text-xs text-rb-blue font-medium">50+ Consultants</span>
+    <span className="text-xs text-rb-gray">•</span>
+    <span className="text-xs text-rb-blue font-medium">100+ Projects</span>
+  </div>
+</div>
 
           {/* Community Column */}
           <div className="text-center sm:text-left">
@@ -104,7 +100,7 @@ export const Footer = () => {
             </ul>
           </div>
 
-          {/* Blog & Resources Column - Blog navigates to /blogs */}
+          {/* Blog & Resources Column */}
           <div className="text-center sm:text-left">
             <h4 className="text-rb-silver font-semibold text-base mb-4">Blog & Resources</h4>
             <ul className="space-y-2">

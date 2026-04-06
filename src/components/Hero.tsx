@@ -88,15 +88,15 @@ export const Hero = () => {
             ref={headerRef}
             className="lg:w-1/2 lg:sticky lg:top-12 lg:h-screen flex flex-col justify-center pt-16 pb-4"
           >
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={headerInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.7 }}
-              className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold leading-tight -mt-4"
-            >
-              <span className="text-rb-silver">Every kind of</span><br />
-              <span className="text-rb-blue">help students actually need</span>
-            </motion.h1>
+           <motion.h1
+  initial={{ opacity: 0, y: 30 }}
+  animate={headerInView ? { opacity: 1, y: 0 } : {}}
+  transition={{ duration: 0.7 }}
+  className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold leading-tight mt-10"  // Added mt-6 to move the text down
+>
+  <span className="text-rb-silver">Every kind of</span><br />
+  <span className="text-rb-blue">help students actually need</span>
+</motion.h1>
 
             <motion.p
               initial={{ opacity: 0, y: 20 }}

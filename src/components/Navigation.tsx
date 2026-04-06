@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
+import logo from '../assets/logo.png'
 
 interface MegaMenuItem {
     title: string
@@ -94,20 +95,19 @@ export const Navigation = () => {
                     <div className="flex items-center justify-between">
                         {/* Logo and Brand */}
                         <motion.div
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className="flex items-center gap-3 cursor-pointer group"
-                            onClick={() => navigate('/main')}
-                        >
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-rb-blue to-rb-steel flex items-center justify-center shadow-md group-hover:shadow-glow transition-all duration-300">
-                                <span className="text-black font-bold text-xl">A</span>
-                            </div>
-                            <div>
-                                <span className="text-xl font-display font-bold text-white">
-                                    a<span className="text-rb-blue">V</span>ital
-                                </span>
-                            </div>
-                        </motion.div>
+    initial={{ opacity: 0, x: -20 }}
+    animate={{ opacity: 1, x: 0 }}
+    className="flex items-center gap-3 cursor-pointer group ml-10"
+    onClick={() => navigate('/main')}
+>
+    <div className="w-24 h-34 rounded-xl overflow-hidden shadow-md group-hover:shadow-glow transition-all duration-300">
+        <img 
+            src={logo} 
+            alt="Avital Logo" 
+            className="w-full h-full object-cover"
+        />
+    </div>
+</motion.div>
 
                         {/* Desktop Navigation */}
                         <div className="hidden lg:flex items-center gap-1">
