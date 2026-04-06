@@ -137,12 +137,12 @@ const consultants = [
     {
         name: 'Joel Irungu',
         role: 'Full-Stack & DevOps Lead',
-        university: 'Meru University',
-        tags: ['Angular', 'Node.js', 'Docker', 'Kubernetes', 'Scalability', 'UI/UX'],
+        university: 'Kenya Methodist University',
+        tags: ['Angular', 'Node.js', 'Docker', 'Kubernetes', 'Express', 'UI/UX'],
         projects: 24,
         rating: 5.0,
         quote:
-          'The best way to learn is to build something that actually matters to someone. Every project here is real. We are a very flexible team. ',
+          'The best way to learn is to build something that actually matters to someone. We offer the practical part.',
         portfolio: '#',
         initials: 'JI',
         accentColor: 'bg-rb-steel/20 text-rb-silver border-rb-silver/30',
