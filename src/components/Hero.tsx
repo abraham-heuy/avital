@@ -33,9 +33,10 @@ export const Hero = () => {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // GSAP ScrollTrigger – clean, no manual spacers
+  // GSAP ScrollTrigger – only applies on desktop (lg and up)
   useEffect(() => {
     if (!sectionRef.current) return
+    if (window.innerWidth < 1024) return // disable on mobile
 
     const total = descriptions.length
 
@@ -59,7 +60,7 @@ export const Hero = () => {
     return () => ctx.revert()
   }, [])
 
-  // Layout effect to refresh once after everything is painted
+  // Layout effect to refresh after load/resize
   useLayoutEffect(() => {
     const refresh = () => ScrollTrigger.refresh()
     const timeout = setTimeout(refresh, 100)
@@ -90,15 +91,15 @@ export const Hero = () => {
         />
       </div>
 
-      {/* PINNED WRAPPER */}
+      {/* PINNED WRAPPER (only pinned on desktop) */}
       <div ref={sectionRef} className="relative z-10">
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row gap-12">
 
-            {/* LEFT COLUMN */}
+            {/* LEFT COLUMN – normal flow on mobile, full height only on desktop */}
             <div
               ref={headerRef}
-              className="lg:w-1/2 min-h-screen flex flex-col justify-center pt-16 pb-4"
+              className="lg:w-1/2 lg:min-h-screen flex flex-col justify-center pt-16 pb-4"
             >
               <motion.h1
                 initial={{ opacity: 0, y: 30 }}
@@ -130,21 +131,21 @@ export const Hero = () => {
               </div>
             </div>
 
-            {/* RIGHT COLUMN – Carousel */}
-            <div className="lg:w-1/2 min-h-screen flex flex-col justify-center pb-10 relative">
-              <div className="relative h-[420px] sm:h-[520px] flex items-center justify-center overflow-hidden isolate">
+            {/* RIGHT COLUMN – Carousel, reduced height on mobile */}
+            <div className="lg:w-1/2 lg:min-h-screen flex flex-col justify-center pb-10 relative">
+              <div className="relative h-[300px] sm:h-[420px] lg:h-[520px] flex items-center justify-center overflow-hidden isolate">
                 {descriptions.map((item, i) => {
                   const length = descriptions.length
                   let position = i - (currentIndex % length)
                   if (position > length / 2) position -= length
                   if (position < -length / 2) position += length
 
-                  const baseSpacing = 140
+                  const baseSpacing = 120 // slightly smaller on mobile, but let's keep consistent
                   const y = position * baseSpacing
                   const yAdjusted = position === 0 ? y - 10 : y
                   const scale = position === 0 ? 1 : Math.abs(position) === 1 ? 0.75 : Math.abs(position) === 2 ? 0.55 : 0.4
                   const opacity = position === 0 ? 1 : Math.abs(position) === 1 ? 0.75 : Math.abs(position) === 2 ? 0.35 : 0
-                  const height = position === 0 ? 300 : Math.abs(position) === 1 ? 220 : 160
+                  const height = position === 0 ? (isMobile ? 260 : 300) : Math.abs(position) === 1 ? (isMobile ? 180 : 220) : (isMobile ? 140 : 160)
                   const zIndex = position === 0 ? 50 : 20 - Math.abs(position)
                   const blurAmount = isMobile
                     ? position === 0 ? 0 : Math.min(Math.abs(position) * 3, 8)
