@@ -116,10 +116,10 @@ export const Navigation = () => {
                         <motion.div
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            className="cursor-pointer group flex-shrink-0"
+                            className="cursor-pointer group flex-shrink-0 ml-14"
                             onClick={() => navigate('/main')}
                         >
-                            <div className="w-14 h-14 flex items-center justify-center">
+                            <div className="w-19 h-20 flex items-center justify-center">
                                 <img 
                                     src={logo} 
                                     alt="Avital Logo" 

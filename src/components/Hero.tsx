@@ -132,20 +132,20 @@ export const Hero = () => {
             </div>
 
             {/* RIGHT COLUMN – Carousel, reduced height on mobile */}
-            <div className="lg:w-1/2 lg:min-h-screen flex flex-col justify-center pb-10 relative">
-              <div className="relative h-[300px] sm:h-[420px] lg:h-[520px] flex items-center justify-center overflow-hidden isolate">
+            <div className="lg:w-1/2 lg:min-h-screen flex flex-col justify-center pb-0 relative">
+              <div className="relative h-[460px] sm:h-[500px] lg:h-[500px] flex items-center justify-center overflow-hidden isolate">
                 {descriptions.map((item, i) => {
                   const length = descriptions.length
                   let position = i - (currentIndex % length)
                   if (position > length / 2) position -= length
                   if (position < -length / 2) position += length
 
-                  const baseSpacing = 120 // slightly smaller on mobile, but let's keep consistent
+                  const baseSpacing = 140 // slightly smaller on mobile, but let's keep consistent
                   const y = position * baseSpacing
                   const yAdjusted = position === 0 ? y - 10 : y
                   const scale = position === 0 ? 1 : Math.abs(position) === 1 ? 0.75 : Math.abs(position) === 2 ? 0.55 : 0.4
                   const opacity = position === 0 ? 1 : Math.abs(position) === 1 ? 0.75 : Math.abs(position) === 2 ? 0.35 : 0
-                  const height = position === 0 ? (isMobile ? 260 : 300) : Math.abs(position) === 1 ? (isMobile ? 180 : 220) : (isMobile ? 140 : 160)
+                  const height = position === 0 ? (isMobile ? 320 : 300) : Math.abs(position) === 1 ? (isMobile ? 180 : 220) : (isMobile ? 140 : 160)
                   const zIndex = position === 0 ? 50 : 20 - Math.abs(position)
                   const blurAmount = isMobile
                     ? position === 0 ? 0 : Math.min(Math.abs(position) * 3, 8)
