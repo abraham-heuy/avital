@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import logo from '../assets/logo.png'
+
+gsap.registerPlugin(ScrollTrigger)
 
 interface MegaMenuItem {
     title: string
@@ -45,28 +49,37 @@ export const Navigation = () => {
 
     const navItems = ['Services', 'Projects', 'Resources', 'FAQs']
 
+    // Scroll listener
     useEffect(() => {
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 50)
-        }
+        const handleScroll = () => setScrolled(window.scrollY > 50)
         window.addEventListener('scroll', handleScroll)
-        
-        return () => {
-            window.removeEventListener('scroll', handleScroll)
-        }
+        return () => window.removeEventListener('scroll', handleScroll)
     }, [])
 
-    // Prevent body scroll when mobile menu is open
+    // Refresh ScrollTrigger when navbar style changes
+    useEffect(() => {
+        ScrollTrigger.refresh()
+    }, [scrolled])
+
+    // Handle mobile menu body scroll and refresh ScrollTrigger after closing
     useEffect(() => {
         if (isMobileMenuOpen) {
             document.body.style.overflow = 'hidden'
         } else {
-            document.body.style.overflow = 'unset'
+            document.body.style.overflow = ''
+            // Give time for DOM to settle before refreshing GSAP
+            setTimeout(() => ScrollTrigger.refresh(), 50)
         }
         return () => {
-            document.body.style.overflow = 'unset'
+            document.body.style.overflow = ''
         }
     }, [isMobileMenuOpen])
+
+    useEffect(() => {
+        const handleResize = () => ScrollTrigger.refresh()
+        window.addEventListener('resize', handleResize)
+        return () => window.removeEventListener('resize', handleResize)
+    }, [])
 
     const handleMouseEnter = (item: string) => {
         if (hoverTimeout) clearTimeout(hoverTimeout)
@@ -74,16 +87,13 @@ export const Navigation = () => {
     }
 
     const handleMouseLeave = () => {
-        const timeout = setTimeout(() => {
-            setActiveMegaMenu(null)
-        }, 200)
+        const timeout = setTimeout(() => setActiveMegaMenu(null), 200)
         setHoverTimeout(timeout)
     }
 
     const handleNavigation = (link: string) => {
         setIsMobileMenuOpen(false)
         setActiveMegaMenu(null)
-        
         if (link.startsWith('/')) {
             navigate(link)
         } else if (link.startsWith('#')) {
@@ -93,8 +103,7 @@ export const Navigation = () => {
             } else {
                 navigate('/main')
                 setTimeout(() => {
-                    const el = document.querySelector(link)
-                    el?.scrollIntoView({ behavior: 'smooth' })
+                    document.querySelector(link)?.scrollIntoView({ behavior: 'smooth' })
                 }, 100)
             }
         }
@@ -115,11 +124,7 @@ export const Navigation = () => {
                             onClick={() => navigate('/main')}
                         >
                             <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md group-hover:shadow-glow transition-all duration-300">
-                                <img 
-                                    src={logo} 
-                                    alt="Avital Logo" 
-                                    className="w-full h-full object-cover"
-                                />
+                                <img src={logo} alt="Avital Logo" className="w-full h-full object-cover" />
                             </div>
                             <span className="text-xl font-display font-bold text-white hidden sm:inline">
                                 a<span className="text-rb-blue">V</span>ital
@@ -129,42 +134,21 @@ export const Navigation = () => {
                         {/* Desktop Navigation */}
                         <div className="hidden lg:flex items-center gap-1">
                             {navItems.map((item) => (
-                                <div
-                                    key={item}
-                                    className="relative"
-                                    onMouseEnter={() => handleMouseEnter(item)}
-                                    onMouseLeave={handleMouseLeave}
-                                >
-                                    <button
-                                        className={`px-5 py-2 text-white/80 font-medium rounded-lg transition-all duration-300 hover:bg-white/10 hover:text-white ${
-                                            activeMegaMenu === item ? 'bg-white/10 text-white' : ''
-                                        }`}
-                                    >
+                                <div key={item} className="relative" onMouseEnter={() => handleMouseEnter(item)} onMouseLeave={handleMouseLeave}>
+                                    <button className={`px-5 py-2 text-white/80 font-medium rounded-lg transition-all duration-300 hover:bg-white/10 hover:text-white ${
+                                        activeMegaMenu === item ? 'bg-white/10 text-white' : ''
+                                    }`}>
                                         {item}
                                     </button>
-
                                     {activeMegaMenu === item && (
-                                        <div
-                                            className="absolute top-full left-0 mt-2 w-[500px] rounded-xl overflow-hidden z-50"
-                                            style={{
-                                                background: 'rgba(18, 20, 23, 0.95)',
-                                                backdropFilter: 'blur(12px)',
-                                                border: '1px solid rgba(255, 255, 255, 0.1)'
-                                            }}
-                                        >
+                                        <div className="absolute top-full left-0 mt-2 w-[500px] rounded-xl overflow-hidden z-50"
+                                            style={{ background: 'rgba(18,20,23,0.95)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)' }}>
                                             <div className="grid grid-cols-2 gap-0">
                                                 {megaMenuData[item].map((menuItem) => (
-                                                    <button
-                                                        key={menuItem.title}
-                                                        onClick={() => handleNavigation(menuItem.link)}
-                                                        className="flex flex-col items-start gap-1 p-4 transition-all duration-300 text-left hover:bg-white/10 group"
-                                                    >
-                                                        <div className="font-semibold text-white/80 group-hover:text-rb-blue transition-colors">
-                                                            {menuItem.title}
-                                                        </div>
-                                                        <div className="text-sm text-white/50 group-hover:text-white/70 transition-colors">
-                                                            {menuItem.description}
-                                                        </div>
+                                                    <button key={menuItem.title} onClick={() => handleNavigation(menuItem.link)}
+                                                        className="flex flex-col items-start gap-1 p-4 transition-all duration-300 text-left hover:bg-white/10 group">
+                                                        <div className="font-semibold text-white/80 group-hover:text-rb-blue transition-colors">{menuItem.title}</div>
+                                                        <div className="text-sm text-white/50 group-hover:text-white/70 transition-colors">{menuItem.description}</div>
                                                     </button>
                                                 ))}
                                             </div>
@@ -200,68 +184,32 @@ export const Navigation = () => {
                 </div>
             </nav>
 
-            {/* Mobile Menu - Removed AnimatePresence to fix the error */}
+            {/* Mobile Menu – no inline animation styles, using CSS classes */}
             {isMobileMenuOpen && (
-                <div
-                    className="fixed inset-0 z-40 lg:hidden"
-                    style={{
-                        background: 'rgba(18, 20, 23, 0.98)',
-                        backdropFilter: 'blur(12px)'
-                    }}
-                >
+                <div className="fixed inset-0 z-40 lg:hidden" style={{ background: 'rgba(18,20,23,0.98)', backdropFilter: 'blur(12px)' }}>
                     <div className="flex flex-col h-full pt-24 px-6 pb-8 overflow-y-auto">
-                        {/* Close button */}
-                        <button
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className="absolute top-5 right-5 text-white text-2xl w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
-                            aria-label="Close menu"
-                        >
-                            ×
-                        </button>
-                        
-                        {/* Navigation items */}
-                        <div className="space-y-8">
-                            {navItems.map((item, idx) => (
-                                <div
-                                    key={item}
-                                    className="border-b border-rb-silver/10 pb-4"
-                                    style={{
-                                        animation: `fadeInUp 0.3s ease-out ${idx * 0.05}s forwards`,
-                                        opacity: 0,
-                                        transform: 'translateY(20px)'
-                                    }}
-                                >
-                                    <div className="text-lg font-bold text-rb-blue mb-3">{item}</div>
-                                    <div className="grid gap-2">
-                                        {megaMenuData[item].map((menuItem, menuIdx) => (
-                                            <button
-                                                key={menuItem.title}
-                                                onClick={() => handleNavigation(menuItem.link)}
-                                                className="flex flex-col items-start gap-1 p-3 rounded-lg transition-all duration-300 text-left w-full hover:bg-white/10"
-                                                style={{
-                                                    animation: `fadeInUp 0.3s ease-out ${idx * 0.05 + menuIdx * 0.03}s forwards`,
-                                                    opacity: 0,
-                                                    transform: 'translateY(20px)'
-                                                }}
-                                            >
-                                                <div className="font-medium text-white text-sm">{menuItem.title}</div>
-                                                <div className="text-xs text-white/60">{menuItem.description}</div>
-                                            </button>
-                                        ))}
-                                    </div>
+                        {navItems.map((item, idx) => (
+                            <div key={item} className="border-b border-rb-silver/10 pb-4 opacity-0 translate-y-4 animate-fadeInUp" style={{ animationDelay: `${idx * 0.05}s`, animationFillMode: 'forwards' }}>
+                                <div className="text-lg font-bold text-rb-blue mb-3">{item}</div>
+                                <div className="grid gap-2">
+                                    {megaMenuData[item].map((menuItem, menuIdx) => (
+                                        <button
+                                            key={menuItem.title}
+                                            onClick={() => handleNavigation(menuItem.link)}
+                                            className="flex flex-col items-start gap-1 p-3 rounded-lg transition-all duration-300 text-left w-full hover:bg-white/10 opacity-0 translate-y-4 animate-fadeInUp"
+                                            style={{ animationDelay: `${idx * 0.05 + menuIdx * 0.03}s`, animationFillMode: 'forwards' }}
+                                        >
+                                            <div className="font-medium text-white text-sm">{menuItem.title}</div>
+                                            <div className="text-xs text-white/60">{menuItem.description}</div>
+                                        </button>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
-                        
-                        {/* CTA Button */}
+                            </div>
+                        ))}
                         <button
                             onClick={() => handleNavigation('#contact')}
-                            className="w-full mt-8 px-6 py-3 bg-gradient-to-r from-rb-blue to-rb-steel text-black font-semibold rounded-full hover:shadow-glow transition-all duration-300"
-                            style={{
-                                animation: 'fadeInUp 0.3s ease-out 0.4s forwards',
-                                opacity: 0,
-                                transform: 'translateY(20px)'
-                            }}
+                            className="w-full mt-8 px-6 py-3 bg-gradient-to-r from-rb-blue to-rb-steel text-black font-semibold rounded-full hover:shadow-glow transition-all duration-300 opacity-0 translate-y-4 animate-fadeInUp"
+                            style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}
                         >
                             Get Started →
                         </button>
@@ -269,7 +217,7 @@ export const Navigation = () => {
                 </div>
             )}
 
-            {/* Add CSS for animations */}
+            {/* Global CSS for fadeInUp keyframes – no inline styles */}
             <style>{`
                 @keyframes fadeInUp {
                     from {
@@ -280,6 +228,9 @@ export const Navigation = () => {
                         opacity: 1;
                         transform: translateY(0);
                     }
+                }
+                .animate-fadeInUp {
+                    animation: fadeInUp 0.3s ease-out forwards;
                 }
             `}</style>
         </>
