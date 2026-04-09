@@ -49,25 +49,21 @@ export const Navigation = () => {
 
     const navItems = ['Services', 'Projects', 'Resources', 'FAQs']
 
-    // Scroll listener
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 50)
         window.addEventListener('scroll', handleScroll)
         return () => window.removeEventListener('scroll', handleScroll)
     }, [])
 
-    // Refresh ScrollTrigger when navbar style changes
     useEffect(() => {
         ScrollTrigger.refresh()
     }, [scrolled])
 
-    // Handle mobile menu body scroll and refresh ScrollTrigger after closing
     useEffect(() => {
         if (isMobileMenuOpen) {
             document.body.style.overflow = 'hidden'
         } else {
             document.body.style.overflow = ''
-            // Give time for DOM to settle before refreshing GSAP
             setTimeout(() => ScrollTrigger.refresh(), 50)
         }
         return () => {
@@ -116,19 +112,20 @@ export const Navigation = () => {
             }`}>
                 <div className="container mx-auto px-4 py-3">
                     <div className="flex items-center justify-between">
-                        {/* Logo and Brand */}
+                        {/* Logo only – text-like appearance, no borders */}
                         <motion.div
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            className="flex items-center gap-3 cursor-pointer group flex-shrink-0"
+                            className="cursor-pointer group flex-shrink-0"
                             onClick={() => navigate('/main')}
                         >
-                            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md group-hover:shadow-glow transition-all duration-300">
-                                <img src={logo} alt="Avital Logo" className="w-full h-full object-cover" />
+                            <div className="w-14 h-14 flex items-center justify-center">
+                                <img 
+                                    src={logo} 
+                                    alt="Avital Logo" 
+                                    className="w-full h-full object-contain transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(167,199,231,0.6)]"
+                                />
                             </div>
-                            <span className="text-xl font-display font-bold text-white hidden sm:inline">
-                                a<span className="text-rb-blue">V</span>ital
-                            </span>
                         </motion.div>
 
                         {/* Desktop Navigation */}
@@ -184,7 +181,7 @@ export const Navigation = () => {
                 </div>
             </nav>
 
-            {/* Mobile Menu – no inline animation styles, using CSS classes */}
+            {/* Mobile Menu */}
             {isMobileMenuOpen && (
                 <div className="fixed inset-0 z-40 lg:hidden" style={{ background: 'rgba(18,20,23,0.98)', backdropFilter: 'blur(12px)' }}>
                     <div className="flex flex-col h-full pt-24 px-6 pb-8 overflow-y-auto">
@@ -217,7 +214,6 @@ export const Navigation = () => {
                 </div>
             )}
 
-            {/* Global CSS for fadeInUp keyframes – no inline styles */}
             <style>{`
                 @keyframes fadeInUp {
                     from {
