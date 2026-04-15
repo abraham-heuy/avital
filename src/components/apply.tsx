@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { createApplication } from '../services/api.service'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -8,6 +9,7 @@ type FormData = {
   // Step 1 — About you
   name: string
   email: string
+  phone: string
   university: string
   yearOfStudy: string
   // Step 2 — Your project
@@ -28,6 +30,7 @@ type FormData = {
 const initialForm: FormData = {
   name: '',
   email: '',
+  phone: '',
   university: '',
   yearOfStudy: '',
   service: '',
@@ -73,15 +76,7 @@ const stepMeta = [
 
 // ─── Small reusable input ─────────────────────────────────────────────────────
 
-const Field = ({
-  label,
-  error,
-  children,
-}: {
-  label: string
-  error?: string
-  children: React.ReactNode
-}) => (
+const Field = ({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) => (
   <div>
     <label className="block text-xs font-semibold tracking-widest uppercase text-rb-silver/50 mb-2">
       {label}
@@ -134,29 +129,16 @@ const Progress = ({ step, total }: { step: number; total: number }) => (
 const Step1 = ({ data, update, errors }: { data: FormData; update: (k: keyof FormData, v: string) => void; errors: Partial<FormData> }) => (
   <div className="space-y-5">
     <Field label="Full name" error={errors.name}>
-      <input
-        className={inputClass}
-        placeholder="e.g. John Doe"
-        value={data.name}
-        onChange={(e) => update('name', e.target.value)}
-      />
+      <input className={inputClass} placeholder="e.g. John Doe" value={data.name} onChange={(e) => update('name', e.target.value)} />
     </Field>
     <Field label="Email address" error={errors.email}>
-      <input
-        type="email"
-        className={inputClass}
-        placeholder="you@university.ac.ke"
-        value={data.email}
-        onChange={(e) => update('email', e.target.value)}
-      />
+      <input type="email" className={inputClass} placeholder="you@university.ac.ke" value={data.email} onChange={(e) => update('email', e.target.value)} />
+    </Field>
+    <Field label="Phone number" error={errors.phone}>
+      <input type="tel" className={inputClass} placeholder="+254 700 000 000" value={data.phone} onChange={(e) => update('phone', e.target.value)} />
     </Field>
     <Field label="University / Institution" error={errors.university}>
-      <input
-        className={inputClass}
-        placeholder="e.g. University of Nairobi"
-        value={data.university}
-        onChange={(e) => update('university', e.target.value)}
-      />
+      <input className={inputClass} placeholder="e.g. University of Nairobi" value={data.university} onChange={(e) => update('university', e.target.value)} />
     </Field>
     <Field label="Year of study">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -165,11 +147,7 @@ const Step1 = ({ data, update, errors }: { data: FormData; update: (k: keyof For
             key={y}
             type="button"
             onClick={() => update('yearOfStudy', y)}
-            className={`py-2.5 rounded-xl text-xs font-semibold border transition-all duration-200
-              ${data.yearOfStudy === y
-                ? 'border-rb-blue/60 bg-rb-blue/15 text-rb-blue'
-                : 'border-rb-silver/10 bg-rb-black/40 text-rb-gray hover:border-rb-silver/25'
-              }`}
+            className={`py-2.5 rounded-xl text-xs font-semibold border transition-all duration-200 ${data.yearOfStudy === y ? 'border-rb-blue/60 bg-rb-blue/15 text-rb-blue' : 'border-rb-silver/10 bg-rb-black/40 text-rb-gray hover:border-rb-silver/25'}`}
           >
             {y}
           </button>
@@ -188,15 +166,9 @@ const Step2 = ({ data, update, errors }: { data: FormData; update: (k: keyof For
             key={s.id}
             type="button"
             onClick={() => update('service', s.id)}
-            className={`text-left px-4 py-3.5 rounded-xl border transition-all duration-200
-              ${data.service === s.id
-                ? 'border-rb-blue/60 bg-rb-blue/15'
-                : 'border-rb-silver/10 bg-rb-black/40 hover:border-rb-silver/25'
-              }`}
+            className={`text-left px-4 py-3.5 rounded-xl border transition-all duration-200 ${data.service === s.id ? 'border-rb-blue/60 bg-rb-blue/15' : 'border-rb-silver/10 bg-rb-black/40 hover:border-rb-silver/25'}`}
           >
-            <p className={`text-sm font-semibold mb-0.5 ${data.service === s.id ? 'text-rb-blue' : 'text-rb-silver'}`}>
-              {s.label}
-            </p>
+            <p className={`text-sm font-semibold mb-0.5 ${data.service === s.id ? 'text-rb-blue' : 'text-rb-silver'}`}>{s.label}</p>
             <p className="text-xs text-rb-gray/60">{s.desc}</p>
           </button>
         ))}
@@ -206,33 +178,17 @@ const Step2 = ({ data, update, errors }: { data: FormData; update: (k: keyof For
     {data.service === 'other' && (
       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
         <Field label="Describe what you need" error={errors.serviceOther}>
-          <input
-            className={inputClass}
-            placeholder="Tell us in your own words..."
-            value={data.serviceOther}
-            onChange={(e) => update('serviceOther', e.target.value)}
-          />
+          <input className={inputClass} placeholder="Tell us in your own words..." value={data.serviceOther} onChange={(e) => update('serviceOther', e.target.value)} />
         </Field>
       </motion.div>
     )}
 
     <Field label="Project title" error={errors.projectTitle}>
-      <input
-        className={inputClass}
-        placeholder="e.g. Smart Farm Irrigation System"
-        value={data.projectTitle}
-        onChange={(e) => update('projectTitle', e.target.value)}
-      />
+      <input className={inputClass} placeholder="e.g. Smart Farm Irrigation System" value={data.projectTitle} onChange={(e) => update('projectTitle', e.target.value)} />
     </Field>
 
     <Field label="Brief description" error={errors.projectDescription}>
-      <textarea
-        rows={4}
-        className={inputClass}
-        placeholder="What is your project about? What are you trying to build or achieve?"
-        value={data.projectDescription}
-        onChange={(e) => update('projectDescription', e.target.value)}
-      />
+      <textarea rows={4} className={inputClass} placeholder="What is your project about? What are you trying to build or achieve?" value={data.projectDescription} onChange={(e) => update('projectDescription', e.target.value)} />
     </Field>
   </div>
 )
@@ -240,21 +196,11 @@ const Step2 = ({ data, update, errors }: { data: FormData; update: (k: keyof For
 const Step3 = ({ data, update }: { data: FormData; update: (k: keyof FormData, v: string) => void }) => (
   <div className="space-y-5">
     <Field label="Tech stack (if known)">
-      <input
-        className={inputClass}
-        placeholder="e.g. React, Node.js, PostgreSQL — or leave blank if unsure"
-        value={data.stack}
-        onChange={(e) => update('stack', e.target.value)}
-      />
+      <input className={inputClass} placeholder="e.g. React, Node.js, PostgreSQL — or leave blank if unsure" value={data.stack} onChange={(e) => update('stack', e.target.value)} />
     </Field>
 
     <Field label="Submission or deadline date">
-      <input
-        type="date"
-        className={inputClass}
-        value={data.deadline}
-        onChange={(e) => update('deadline', e.target.value)}
-      />
+      <input type="date" className={inputClass} value={data.deadline} onChange={(e) => update('deadline', e.target.value)} />
     </Field>
 
     <Field label="How urgent is this?">
@@ -264,15 +210,9 @@ const Step3 = ({ data, update }: { data: FormData; update: (k: keyof FormData, v
             key={u.id}
             type="button"
             onClick={() => update('urgency', u.id)}
-            className={`text-left px-4 py-3 rounded-xl border transition-all duration-200
-              ${data.urgency === u.id
-                ? 'border-rb-blue/60 bg-rb-blue/15'
-                : 'border-rb-silver/10 bg-rb-black/40 hover:border-rb-silver/25'
-              }`}
+            className={`text-left px-4 py-3 rounded-xl border transition-all duration-200 ${data.urgency === u.id ? 'border-rb-blue/60 bg-rb-blue/15' : 'border-rb-silver/10 bg-rb-black/40 hover:border-rb-silver/25'}`}
           >
-            <p className={`text-sm font-semibold ${data.urgency === u.id ? 'text-rb-blue' : 'text-rb-silver'}`}>
-              {u.label}
-            </p>
+            <p className={`text-sm font-semibold ${data.urgency === u.id ? 'text-rb-blue' : 'text-rb-silver'}`}>{u.label}</p>
             <p className="text-xs text-rb-gray/50">{u.sub}</p>
           </button>
         ))}
@@ -289,15 +229,9 @@ const Step3 = ({ data, update }: { data: FormData; update: (k: keyof FormData, v
             key={g.id}
             type="button"
             onClick={() => update('groupSize', g.id)}
-            className={`text-left px-4 py-3 rounded-xl border transition-all duration-200
-              ${data.groupSize === g.id
-                ? 'border-rb-blue/60 bg-rb-blue/15'
-                : 'border-rb-silver/10 bg-rb-black/40 hover:border-rb-silver/25'
-              }`}
+            className={`text-left px-4 py-3 rounded-xl border transition-all duration-200 ${data.groupSize === g.id ? 'border-rb-blue/60 bg-rb-blue/15' : 'border-rb-silver/10 bg-rb-black/40 hover:border-rb-silver/25'}`}
           >
-            <p className={`text-sm font-semibold ${data.groupSize === g.id ? 'text-rb-blue' : 'text-rb-silver'}`}>
-              {g.label}
-            </p>
+            <p className={`text-sm font-semibold ${data.groupSize === g.id ? 'text-rb-blue' : 'text-rb-silver'}`}>{g.label}</p>
             <p className="text-xs text-rb-gray/50">{g.sub}</p>
           </button>
         ))}
@@ -309,13 +243,7 @@ const Step3 = ({ data, update }: { data: FormData; update: (k: keyof FormData, v
 const Step4 = ({ data, update }: { data: FormData; update: (k: keyof FormData, v: string) => void }) => (
   <div className="space-y-5">
     <Field label="What is your biggest blocker right now?">
-      <textarea
-        rows={4}
-        className={inputClass}
-        placeholder="e.g. I cannot figure out why my API keeps returning 500 errors, and my deadline is in 10 days..."
-        value={data.blockers}
-        onChange={(e) => update('blockers', e.target.value)}
-      />
+      <textarea rows={4} className={inputClass} placeholder="e.g. I cannot figure out why my API keeps returning 500 errors, and my deadline is in 10 days..." value={data.blockers} onChange={(e) => update('blockers', e.target.value)} />
     </Field>
 
     <Field label="How did you hear about us?">
@@ -325,11 +253,7 @@ const Step4 = ({ data, update }: { data: FormData; update: (k: keyof FormData, v
             key={h}
             type="button"
             onClick={() => update('hearAboutUs', h)}
-            className={`py-2.5 px-3 rounded-xl text-xs font-medium border text-left transition-all duration-200
-              ${data.hearAboutUs === h
-                ? 'border-rb-blue/60 bg-rb-blue/15 text-rb-blue'
-                : 'border-rb-silver/10 bg-rb-black/40 text-rb-gray hover:border-rb-silver/25'
-              }`}
+            className={`py-2.5 px-3 rounded-xl text-xs font-medium border text-left transition-all duration-200 ${data.hearAboutUs === h ? 'border-rb-blue/60 bg-rb-blue/15 text-rb-blue' : 'border-rb-silver/10 bg-rb-black/40 text-rb-gray hover:border-rb-silver/25'}`}
           >
             {h}
           </button>
@@ -337,12 +261,12 @@ const Step4 = ({ data, update }: { data: FormData; update: (k: keyof FormData, v
       </div>
     </Field>
 
-    {/* Summary preview */}
     <div className="rounded-2xl border border-rb-silver/10 bg-rb-dark/30 p-5 space-y-2.5">
       <p className="text-xs font-bold tracking-widest uppercase text-rb-silver/40 mb-3">Your brief summary</p>
       {[
         { label: 'Name', value: data.name },
         { label: 'Email', value: data.email },
+        { label: 'Phone', value: data.phone },
         { label: 'University', value: data.university },
         { label: 'Service', value: services.find(s => s.id === data.service)?.label || '—' },
         { label: 'Project', value: data.projectTitle || '—' },
@@ -358,16 +282,15 @@ const Step4 = ({ data, update }: { data: FormData; update: (k: keyof FormData, v
   </div>
 )
 
-// ─── Success screen ───────────────────────────────────────────────────────────
+// ─── Success screen (displays ticket ID) ─────────────────────────────────────
 
-const Success = ({ name, navigate }: { name: string; navigate: (path: string) => void }) => (
+const Success = ({ name, ticketId, navigate }: { name: string; ticketId: string | null; navigate: (path: string) => void }) => (
   <motion.div
     initial={{ opacity: 0, scale: 0.92 }}
     animate={{ opacity: 1, scale: 1 }}
     transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
     className="text-center py-8"
   >
-    {/* Animated checkmark */}
     <motion.div
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
@@ -378,49 +301,38 @@ const Success = ({ name, navigate }: { name: string; navigate: (path: string) =>
         initial={{ pathLength: 0 }}
         animate={{ pathLength: 1 }}
         transition={{ delay: 0.5, duration: 0.6 }}
-        width="36" height="36" viewBox="0 0 24 24" fill="none"
-        stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+        width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5"
       >
-        <motion.polyline
-          points="20 6 9 17 4 12"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-        />
+        <motion.polyline points="20 6 9 17 4 12" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.5, duration: 0.5 }} />
       </motion.svg>
     </motion.div>
 
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.4 }}
-    >
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
       <h2 className="text-2xl sm:text-3xl font-bold text-rb-silver mb-3">
         We have got your brief, {name.split(' ')[0]}
       </h2>
-
       <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-semibold mb-6">
-        <motion.span
-          animate={{ scale: [1, 1.3, 1] }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
-          className="w-2 h-2 rounded-full bg-green-400 inline-block"
-        />
+        <motion.span animate={{ scale: [1, 1.3, 1] }} transition={{ repeat: Infinity, duration: 1.5 }} className="w-2 h-2 rounded-full bg-green-400 inline-block" />
         Response within 1 hour
       </div>
+
+      {ticketId && (
+        <div className="mt-4 p-4 bg-rb-blue/10 border border-rb-blue/30 rounded-xl max-w-md mx-auto">
+          <p className="text-sm text-rb-gray">Your ticket number:</p>
+          <p className="text-2xl font-mono font-bold text-rb-blue">{ticketId}</p>
+          <p className="text-xs text-rb-gray/70 mt-1">Keep this for reference.</p>
+        </div>
+      )}
 
       <p className="text-rb-gray text-base leading-relaxed max-w-md mx-auto mb-4">
         Your submission has been logged and a team member is already reviewing it. You will receive a match notification and next steps via email shortly.
       </p>
-
       <p className="text-rb-gray/50 text-sm mb-10">
         Check your inbox at the address you provided. It may take a moment to arrive.
       </p>
 
-      {/* What happens next */}
       <div className="rounded-2xl border border-rb-silver/10 bg-rb-dark/30 p-6 text-left max-w-sm mx-auto mb-8 space-y-3">
-        <p className="text-xs font-bold tracking-widest uppercase text-rb-silver/40 mb-4 text-center">
-          What happens next
-        </p>
+        <p className="text-xs font-bold tracking-widest uppercase text-rb-silver/40 mb-4 text-center">What happens next</p>
         {[
           'Your brief is reviewed by our team',
           'A consultant is matched to your project',
@@ -428,32 +340,24 @@ const Success = ({ name, navigate }: { name: string; navigate: (path: string) =>
           'Your dashboard is activated',
           'You start your first session',
         ].map((item, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.7 + i * 0.1 }}
-            className="flex items-center gap-3 text-sm text-rb-gray"
-          >
-            <span className="w-5 h-5 rounded-full bg-rb-blue/20 border border-rb-blue/30 text-rb-blue text-xs flex items-center justify-center font-bold flex-shrink-0">
-              {i + 1}
-            </span>
+          <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.7 + i * 0.1 }} className="flex items-center gap-3 text-sm text-rb-gray">
+            <span className="w-5 h-5 rounded-full bg-rb-blue/20 border border-rb-blue/30 text-rb-blue text-xs flex items-center justify-center font-bold flex-shrink-0">{i + 1}</span>
             {item}
           </motion.div>
         ))}
       </div>
 
-      <button
-        onClick={() => navigate('/')}
-        className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-rb-blue to-rb-steel text-rb-black font-bold text-sm hover:opacity-90 hover:scale-105 transition-all duration-300"
-      >
+      <button onClick={() => navigate('/')} className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-rb-blue to-rb-steel text-rb-black font-bold text-sm hover:opacity-90 hover:scale-105 transition-all duration-300">
         Back to home →
       </button>
     </motion.div>
   </motion.div>
 )
 
-// ─── Main Apply page ──────────────────────────────────────────────────────────
+// ─── Main Apply page with caching ─────────────────────────────────────────────
+
+const CACHE_KEY = 'avital_application_cache'
+const CACHE_EXPIRY_MS = 1 * 60 * 60 * 1000 // 2 hours
 
 export const Apply = () => {
   const navigate = useNavigate()
@@ -462,6 +366,66 @@ export const Apply = () => {
   const [form, setForm] = useState<FormData>(initialForm)
   const [errors, setErrors] = useState<Partial<FormData>>({})
   const [direction, setDirection] = useState(1)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submittedTicketId, setSubmittedTicketId] = useState<string | null>(null)
+  const [showCacheDialog, setShowCacheDialog] = useState(false)
+  const [cachedForm, setCachedForm] = useState<FormData | null>(null)
+  const [cachedStep, setCachedStep] = useState<number | null>(null)
+
+  // Load cached data on mount
+  useEffect(() => {
+    const cached = localStorage.getItem(CACHE_KEY)
+    if (cached) {
+      try {
+        const { form: savedForm, step: savedStep, timestamp } = JSON.parse(cached)
+        const age = Date.now() - timestamp
+        if (age < CACHE_EXPIRY_MS) {
+          setCachedForm(savedForm)
+          setCachedStep(savedStep)
+          setShowCacheDialog(true)
+        } else {
+          localStorage.removeItem(CACHE_KEY)
+        }
+      } catch (e) {
+        console.error('Failed to parse cached application', e)
+        localStorage.removeItem(CACHE_KEY)
+      }
+    }
+  }, [])
+
+  // Save form to localStorage on every change (debounced)
+  useEffect(() => {
+    if (!submitted) {
+      const timeout = setTimeout(() => {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+          form,
+          step,
+          timestamp: Date.now()
+        }))
+      }, 500) // debounce to avoid too many writes
+      return () => clearTimeout(timeout)
+    }
+  }, [form, step, submitted])
+
+  const continueWithCached = () => {
+    if (cachedForm && cachedStep !== null) {
+      setForm(cachedForm)
+      setStep(cachedStep)
+    }
+    setShowCacheDialog(false)
+    setCachedForm(null)
+    setCachedStep(null)
+  }
+
+  const startNewApplication = () => {
+    localStorage.removeItem(CACHE_KEY)
+    setShowCacheDialog(false)
+    setCachedForm(null)
+    setCachedStep(null)
+    // Reset form to initial state
+    setForm(initialForm)
+    setStep(0)
+  }
 
   const update = (key: keyof FormData, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -473,6 +437,7 @@ export const Apply = () => {
     if (step === 0) {
       if (!form.name.trim()) e.name = 'Name is required'
       if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) e.email = 'Valid email required'
+      if (!form.phone.trim()) e.phone = 'Phone number is required'
       if (!form.university.trim()) e.university = 'University is required'
     }
     if (step === 1) {
@@ -496,9 +461,38 @@ export const Apply = () => {
     setStep((s) => Math.max(s - 1, 0))
   }
 
-  const submit = () => {
-    console.log('Submitting:', form)
-    setSubmitted(true)
+  const submit = async () => {
+    if (!validate()) return
+    setIsSubmitting(true)
+
+    const payload = {
+      applicantName: form.name,
+      applicantEmail: form.email,
+      applicantPhone: form.phone,
+      university: form.university,
+      yearOfStudy: form.yearOfStudy,
+      projectTitle: form.projectTitle,
+      projectDescription: form.projectDescription,
+      techStack: form.stack,
+      deadline: form.deadline,
+      urgency: form.urgency,
+      blocker: form.blockers,
+      referralSource: form.hearAboutUs,
+      groupType: form.groupSize === 'solo' ? 'solo' : 'group',
+    }
+
+    try {
+      const result = await createApplication(payload)
+      setSubmittedTicketId(result.ticket_id)
+      // Clear cache on successful submission
+      localStorage.removeItem(CACHE_KEY)
+      setSubmitted(true)
+    } catch (error: any) {
+      console.error('Submission error:', error)
+      alert(error.response?.data?.message || 'Submission failed. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const variants = {
@@ -509,8 +503,7 @@ export const Apply = () => {
 
   return (
     <div className="min-h-screen bg-rb-black relative overflow-hidden">
-
-      {/* Background */}
+      {/* Background (unchanged) */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div
           className="absolute w-[500px] h-[500px] rounded-full bg-rb-blue/5 blur-3xl"
@@ -524,72 +517,64 @@ export const Apply = () => {
           transition={{ duration: 24, repeat: Infinity, ease: 'linear' }}
           style={{ right: '-5%', bottom: '5%' }}
         />
-        <div
-          className="absolute inset-0 opacity-[0.02]"
-          style={{
-            backgroundImage: `linear-gradient(var(--rb-silver, #ccc) 1px, transparent 1px),
-                              linear-gradient(90deg, var(--rb-silver, #ccc) 1px, transparent 1px)`,
-            backgroundSize: '60px 60px',
-          }}
-        />
+        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: `linear-gradient(var(--rb-silver, #ccc) 1px, transparent 1px), linear-gradient(90deg, var(--rb-silver, #ccc) 1px, transparent 1px)`, backgroundSize: '60px 60px' }} />
       </div>
 
       {/* Nav bar */}
       <div className="relative z-10 border-b border-rb-silver/10 px-4 py-4 flex items-center justify-between">
-        <button
-          onClick={() => navigate('/')}
-          className="flex items-center gap-2 text-rb-gray hover:text-rb-silver transition-colors text-sm"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12" />
-            <polyline points="12 19 5 12 12 5" />
-          </svg>
+        <button onClick={() => navigate('/')} className="flex items-center gap-2 text-rb-gray hover:text-rb-silver transition-colors text-sm">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
           Back to site
         </button>
-        <span className="text-rb-blue text-xs font-semibold tracking-widest uppercase">
-          Avital — Apply
-        </span>
+        <span className="text-rb-blue text-xs font-semibold tracking-widest uppercase">Avital — Apply</span>
         <div className="w-20" />
       </div>
+
+      {/* Cache dialog modal */}
+      {showCacheDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="bg-rb-dark/95 border border-rb-silver/20 rounded-2xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-rb-silver mb-2">Continue previous application?</h3>
+            <p className="text-rb-gray text-sm mb-6">
+              You have an unfinished application from less than 2 hours ago. Would you like to continue where you left off or start a new one?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={continueWithCached}
+                className="flex-1 py-2.5 rounded-full bg-gradient-to-r from-rb-blue to-rb-steel text-rb-black font-semibold text-sm hover:opacity-90 transition"
+              >
+                Continue
+              </button>
+              <button
+                onClick={startNewApplication}
+                className="flex-1 py-2.5 rounded-full border border-rb-silver/30 text-rb-gray font-semibold text-sm hover:bg-white/5 transition"
+              >
+                Start new
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Form container */}
       <div className="relative z-10 container mx-auto px-4 py-10 md:py-16 max-w-2xl">
         {submitted ? (
-          <Success name={form.name} navigate={navigate} />
+          <Success name={form.name} ticketId={submittedTicketId} navigate={navigate} />
         ) : (
           <>
-            {/* Step header */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-8"
-            >
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
               <div className="flex items-baseline gap-3 mb-1">
-                <span className="text-xs font-bold tracking-widest uppercase text-rb-blue/60">
-                  Step {stepMeta[step].number} of {stepMeta.length}
-                </span>
+                <span className="text-xs font-bold tracking-widest uppercase text-rb-blue/60">Step {stepMeta[step].number} of {stepMeta.length}</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-rb-silver">
-                {stepMeta[step].title}
-              </h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-rb-silver">{stepMeta[step].title}</h1>
               <p className="text-rb-gray text-sm mt-1">{stepMeta[step].sub}</p>
             </motion.div>
 
-            {/* Progress */}
             <Progress step={step} total={stepMeta.length} />
 
-            {/* Animated step content */}
             <div className="relative overflow-hidden">
               <AnimatePresence custom={direction} mode="wait">
-                <motion.div
-                  key={step}
-                  custom={direction}
-                  variants={variants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                >
+                <motion.div key={step} custom={direction} variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
                   {step === 0 && <Step1 data={form} update={update} errors={errors} />}
                   {step === 1 && <Step2 data={form} update={update} errors={errors} />}
                   {step === 2 && <Step3 data={form} update={update} />}
@@ -598,48 +583,21 @@ export const Apply = () => {
               </AnimatePresence>
             </div>
 
-            {/* Navigation */}
             <div className="flex items-center justify-between mt-8 pt-6 border-t border-rb-silver/10">
-              <button
-                onClick={back}
-                disabled={step === 0}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-rb-silver/15 text-rb-gray text-sm font-semibold hover:border-rb-silver/30 hover:text-rb-silver transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="19" y1="12" x2="5" y2="12" />
-                  <polyline points="12 19 5 12 12 5" />
-                </svg>
+              <button onClick={back} disabled={step === 0} className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-rb-silver/15 text-rb-gray text-sm font-semibold hover:border-rb-silver/30 hover:text-rb-silver transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
                 Back
               </button>
-
-              <span className="text-xs text-rb-gray/30">
-                {step + 1} / {stepMeta.length}
-              </span>
-
+              <span className="text-xs text-rb-gray/30">{step + 1} / {stepMeta.length}</span>
               {step < stepMeta.length - 1 ? (
-                <motion.button
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={next}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-rb-blue to-rb-steel text-rb-black font-bold text-sm hover:opacity-90 transition-all duration-200"
-                >
+                <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={next} className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-rb-blue to-rb-steel text-rb-black font-bold text-sm hover:opacity-90 transition-all duration-200">
                   Continue
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                    <polyline points="12 5 19 12 12 19" />
-                  </svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                 </motion.button>
               ) : (
-                <motion.button
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={submit}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-rb-blue to-rb-steel text-rb-black font-bold text-sm hover:opacity-90 transition-all duration-200"
-                >
-                  Submit brief
-                  <motion.span animate={{ x: [0, 4, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>
-                    →
-                  </motion.span>
+                <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={submit} disabled={isSubmitting} className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-rb-blue to-rb-steel text-rb-black font-bold text-sm hover:opacity-90 transition-all duration-200 disabled:opacity-50">
+                  {isSubmitting ? 'Submitting...' : 'Submit brief'}
+                  {!isSubmitting && <motion.span animate={{ x: [0, 4, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>→</motion.span>}
                 </motion.button>
               )}
             </div>
