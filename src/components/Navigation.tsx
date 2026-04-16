@@ -112,7 +112,7 @@ export const Navigation = () => {
             }`}>
                 <div className="container mx-auto px-4 py-3">
                     <div className="flex items-center justify-between">
-                        {/* Logo only – text-like appearance, no borders */}
+                        {/* Logo only */}
                         <motion.div
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
@@ -155,15 +155,25 @@ export const Navigation = () => {
                             ))}
                         </div>
 
-                        {/* Get Started Button */}
-                        <motion.button
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            onClick={() => handleNavigation('#contact')}
-                            className="hidden lg:block px-6 py-2 bg-gradient-to-r from-rb-blue to-rb-steel text-black font-semibold rounded-full hover:shadow-glow transition-all duration-300 transform hover:scale-105"
-                        >
-                            Get Started →
-                        </motion.button>
+                        {/* Desktop Buttons: Login + Get Started */}
+                        <div className="hidden lg:flex items-center gap-3">
+                            <motion.button
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                onClick={() => navigate('/login')}
+                                className="px-6 py-2 border border-rb-blue/50 text-rb-blue font-semibold rounded-full hover:bg-rb-blue/10 transition-all duration-300"
+                            >
+                                Login
+                            </motion.button>
+                            <motion.button
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                onClick={() => handleNavigation('#contact')}
+                                className="px-6 py-2 bg-gradient-to-r from-rb-blue to-rb-steel text-black font-semibold rounded-full hover:shadow-glow transition-all duration-300 transform hover:scale-105"
+                            >
+                                Get Started →
+                            </motion.button>
+                        </div>
 
                         {/* Mobile Menu Button */}
                         <button
@@ -204,9 +214,16 @@ export const Navigation = () => {
                             </div>
                         ))}
                         <button
-                            onClick={() => handleNavigation('#contact')}
-                            className="w-full mt-8 px-6 py-3 bg-gradient-to-r from-rb-blue to-rb-steel text-black font-semibold rounded-full hover:shadow-glow transition-all duration-300 opacity-0 translate-y-4 animate-fadeInUp"
+                            onClick={() => navigate('/login')}
+                            className="w-full mt-6 px-6 py-3 border border-rb-blue/50 text-rb-blue font-semibold rounded-full hover:bg-rb-blue/10 transition-all duration-300 opacity-0 translate-y-4 animate-fadeInUp"
                             style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}
+                        >
+                            Login
+                        </button>
+                        <button
+                            onClick={() => handleNavigation('#contact')}
+                            className="w-full mt-3 px-6 py-3 bg-gradient-to-r from-rb-blue to-rb-steel text-black font-semibold rounded-full hover:shadow-glow transition-all duration-300 opacity-0 translate-y-4 animate-fadeInUp"
+                            style={{ animationDelay: '0.45s', animationFillMode: 'forwards' }}
                         >
                             Get Started →
                         </button>

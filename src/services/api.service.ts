@@ -45,6 +45,8 @@ export interface Application {
   applicantPhone: string;
   projectTitle: string;
   projectDescription: string;
+  university?: string;
+  yearOfStudy?:string;
   techStack: string;
   deadline: string;
   urgency: 'low' | 'medium' | 'high' | 'critical';

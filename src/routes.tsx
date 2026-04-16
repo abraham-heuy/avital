@@ -13,6 +13,19 @@ import { EventRegister } from './components/events/eventRegister'
 import { SuccessStoryPage } from './components/success/[uuid]'
 import { SuccessStories } from './components/success/successStories'
 import { FAQs } from './components/faq'
+import { Login } from './pages/auth/login'
+import { ForgotPassword } from './pages/auth/forgotPassword'
+import { ResetPassword } from './pages/auth/resetPassword'
+import { VerifyCode } from './pages/auth/verifyCode'
+import { Register } from './pages/auth/registerpage'
+import { ProtectedRoute } from './components/ProtectedRoute'
+import { AdminApplications } from './pages/dashboard.admin/items/Applications.item'
+import { AdminMatches } from './pages/dashboard.admin/items/Matches.item'
+import { AdminOverview } from './pages/dashboard.admin/items/Overview.item'
+import { AdminUsers } from './pages/dashboard.admin/items/Users.item'
+import { DashboardLayout } from './pages/dashboard.admin/layout/DashboardLayout'
+import { UserDetail } from './pages/dashboard.admin/items/userDetail'
+import { ApplicationDetail } from './pages/dashboard.admin/items/appdetails'
 
 // Page transition wrapper
 const PageTransition = ({ children }: { children: React.ReactNode }) => {
@@ -51,6 +64,26 @@ export const router = createBrowserRouter([
       </PageTransition>
     ),
   },
+  {
+    path: '/login',
+    element: <Login />,
+  },
+  {
+  path: '/verify',
+  element: <VerifyCode />,
+},
+{
+  path: '/forgot-password',
+  element: <ForgotPassword />,
+},
+{
+  path: '/reset-password',
+  element: <ResetPassword />,
+},
+{
+  path: '/register',
+  element: <Register />,
+},
   {
     path: '/blogs',
     element: (
@@ -131,5 +164,32 @@ export const router = createBrowserRouter([
         <FAQs />
       </PageTransition>
     ),
+  },
+
+
+
+  {
+    element: <ProtectedRoute allowedRoles={['admin']} />,
+    children: [
+      {
+        path: '/dashboard/admin',
+        element: <DashboardLayout />,
+        children: [
+          { index: true, element: <AdminOverview /> },
+          { path: 'users', element: <AdminUsers /> },
+          {
+            path: 'users/:id',
+            element: <UserDetail />,
+          },
+          { path: 'applications', element: <AdminApplications /> },
+          {
+            path: 'applications/:id',
+            element: <ApplicationDetail />,
+          },
+          // { path: 'consultants', element: <AdminConsultants /> },
+          { path: 'matches', element: <AdminMatches /> },
+        ],
+      },
+    ],
   },
 ])

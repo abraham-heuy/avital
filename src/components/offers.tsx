@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 const packages = [
   {
@@ -177,20 +177,23 @@ const Toggle = ({
   </div>
 )
 
-// Individual package card
 const PackageCard = ({
   pkg,
   mode,
   index,
   inView,
+  exchangeRate,
 }: {
   pkg: typeof packages[0]
   mode: 'solo' | 'group'
   index: number
   inView: boolean
+  exchangeRate: number | null
 }) => {
   const price = mode === 'solo' ? pkg.solo : pkg.group
   const isPopular = pkg.badge === 'Most Popular'
+  const priceUSD = price.price
+  const priceKES = exchangeRate ? Math.round(priceUSD * exchangeRate) : null
 
   return (
     <motion.div
@@ -258,7 +261,7 @@ const PackageCard = ({
 
         {/* Price */}
         <div className="mb-1">
-          <div className="flex items-end gap-2">
+          <div className="flex items-end gap-2 flex-wrap">
             <motion.span
               key={`${pkg.id}-${mode}-price`}
               initial={{ opacity: 0, y: 10 }}
@@ -266,9 +269,14 @@ const PackageCard = ({
               transition={{ duration: 0.35 }}
               className="text-4xl sm:text-5xl font-bold text-rb-silver"
             >
-              ${price.price}
+              ${priceUSD}
             </motion.span>
-            <div className="mb-2">
+            {priceKES && (
+              <div className="text-sm text-rb-gray/70 mb-1">
+                ≈ KES {priceKES.toLocaleString()}
+              </div>
+            )}
+            <div className="mb-2 ml-auto">
               <span className="text-rb-gray/50 line-through text-sm block">${price.original}</span>
               <span className="text-rb-gray text-xs">{price.period}</span>
             </div>
@@ -337,6 +345,11 @@ const PackageCard = ({
 
 export const Pricing = () => {
   const [mode, setMode] = useState<'solo' | 'group'>('solo')
+  const [exchangeRate, setExchangeRate] = useState<number | null>(null)
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null)
+  const [rateLoading, setRateLoading] = useState(true)
+  const [rateError, setRateError] = useState(false)
+
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.05 })
   const [headerRef, headerInView] = useInView({ triggerOnce: true, threshold: 0.15 })
   const containerRef = useRef<HTMLDivElement>(null)
@@ -346,6 +359,33 @@ export const Pricing = () => {
     offset: ['start end', 'end start'],
   })
   const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '30%'])
+
+  // Fetch exchange rate from a free API
+  useEffect(() => {
+    const fetchExchangeRate = async () => {
+      try {
+        setRateLoading(true)
+        // Using exchangerate-api.com (free, no API key required for limited requests)
+        const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD')
+        const data = await response.json()
+        if (data && data.rates && data.rates.KES) {
+          setExchangeRate(data.rates.KES)
+          setLastUpdated(data.time_last_updated ? new Date(data.time_last_updated * 1000).toLocaleString() : new Date().toLocaleString())
+        } else {
+          throw new Error('Invalid response')
+        }
+      } catch (error) {
+        console.error('Failed to fetch exchange rate:', error)
+        setRateError(true)
+        // Fallback to a reasonable default (e.g., 130 KES per USD) if API fails
+        setExchangeRate(130)
+        setLastUpdated('N/A (using fallback rate)')
+      } finally {
+        setRateLoading(false)
+      }
+    }
+    fetchExchangeRate()
+  }, [])
 
   return (
     <section
@@ -384,6 +424,22 @@ export const Pricing = () => {
       </motion.div>
 
       <div className="relative z-10 container mx-auto px-4">
+
+        {/* ── Exchange Rate Info (Top Left) ── */}
+        <div className="flex justify-between items-start mb-4">
+          <div className="text-left">
+            {rateLoading ? (
+              <div className="text-xs text-rb-gray animate-pulse">Loading exchange rate...</div>
+            ) : rateError ? (
+              <div className="text-xs text-red-400">Exchange rate unavailable</div>
+            ) : (
+              <div className="text-xs text-rb-gray">
+                1 USD = {exchangeRate?.toFixed(2)} KES
+                {lastUpdated && <span className="block text-[10px] text-rb-gray/50">Updated: {lastUpdated}</span>}
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* ── Header ── */}
         <motion.div
@@ -457,7 +513,14 @@ export const Pricing = () => {
         {/* ── Cards grid ── */}
         <div ref={ref} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
           {packages.map((pkg, i) => (
-            <PackageCard key={pkg.id} pkg={pkg} mode={mode} index={i} inView={inView} />
+            <PackageCard
+              key={pkg.id}
+              pkg={pkg}
+              mode={mode}
+              index={i}
+              inView={inView}
+              exchangeRate={exchangeRate}
+            />
           ))}
         </div>
 
