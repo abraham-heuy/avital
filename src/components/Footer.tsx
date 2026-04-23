@@ -63,16 +63,27 @@ export const Footer = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
           {/* Brand Column */}
           <div className="text-center sm:text-left -translate-y-11">
-  <div 
-    onClick={navigateToMain}
-    className="flex items-center justify-center sm:justify-start gap-2 cursor-pointer group"
-  >
+          <div 
+  onClick={navigateToMain}
+  className="flex items-center justify-center sm:justify-start gap-2 cursor-pointer group"
+>
+  <div className="relative w-34 h-24 flex items-center justify-center">
+
+    {/* Bright torch base */}
+    <div className="absolute w-24 h-14 rounded-full bg-white/70 blur-2xl opacity-70" />
+
+    {/* Core light */}
+    <div className="absolute w-26 h-20 rounded-full bg-white/80 blur-md" />
+
+    {/* Logo */}
     <img 
       src={logo} 
       alt="Avital Logo" 
-      className="w-24 h-24 rounded-lg object-cover group-hover:shadow-glow transition-all duration-300"
+      className="relative w-full h-full object-contain"
     />
+
   </div>
+</div>
   <p className="text-rb-gray text-sm leading-relaxed mt-2">
     Student tech consultation for complex projects. Connecting ambitious students with experienced consultants.
   </p>

@@ -38,7 +38,15 @@ export default {
 
       backgroundImage: {
         'metal-gradient': 'linear-gradient(145deg, #EAF4FA, #C9CED6, #6B7C8F)',
-      }
+      },
+      theme: {
+        extend: {
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+            poppins: ['Poppins', 'sans-serif'],
+          },
+        },
+      },
     },
   },
   plugins: [],
