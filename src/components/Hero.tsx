@@ -129,25 +129,19 @@ export const Hero = () => {
               ref={headerRef}
               className="lg:w-1/2 lg:min-h-screen flex flex-col justify-center pt-16 pb-4"
             >
-            <motion.h1
-  className="text-4xl sm:text-5xl lg:text-2xl font-poppins font-semibold leading-tight mt-14"
->
-  <span className="text-rb-silver">
-    Your Final Year Project,
-  </span>
-  <br />
-
-  <span className="lg:text-7xl tracking-tight bg-gradient-to-r from-rb-blue via-amber-400 to-rb-silver bg-clip-text text-transparent font-poppins font-bold">
-    DONE
-  </span>{" "}
-
-  <span className="lg:text-4xl text-rb-steel font-poppins font-medium">
-    Right.
-  </span>
-</motion.h1>
+              <motion.h1 className="text-4xl sm:text-5xl lg:text-2xl font-poppins font-semibold leading-tight mt-14">
+                <span className="text-rb-silver">Your Final Year Project,</span>
+                <br />
+                <span className="lg:text-7xl tracking-tight bg-gradient-to-r from-rb-blue via-amber-400 to-rb-silver bg-clip-text text-transparent font-poppins font-bold">
+                  DONE
+                </span>{" "}
+                <span className="lg:text-4xl text-rb-steel font-poppins font-medium">
+                  Right.
+                </span>
+              </motion.h1>
 
               {/* 🔥 STORY SECTION */}
-              <div className="mt-10 relative h-[230px]">
+              <div className="mt-5 relative h-[230px]">
                 {/* SCENE 1 */}
                 <motion.div
                   animate={{
@@ -158,11 +152,26 @@ export const Hero = () => {
                   className="absolute w-full"
                 >
                   <p className="text-rb-gray text-lg sm:text-xl leading-relaxed">
-                    <span className="block text-3xl sm:text-4xl font-bold text-rb-silver leading-tight mb-2">
-                      Designed, built
+                 
+                    <span className="lg:text-5xl tracking-tight bg-gradient-to-r from-rb-blue via-amber-400 to-rb-silver bg-clip-text text-transparent font-poppins font-bold">
+                      {" "}
+                  DESIGNED
+                    </span> 
+                    <span className="lg:text-5xl tracking-tight bg-gradient-to-r from-rb-blue via-amber-400 to-rb-silver bg-clip-text text-transparent font-poppins font-bold">
+                      {" "}
+                 BUILT
                     </span>
-                    and refined by experienced developers to help you present
-                    confidently and stand out.
+                    and refined by  <span className="lg:text-5xl tracking-tight bg-gradient-to-r from-rb-blue via-amber-400 to-rb-silver bg-clip-text text-transparent font-poppins font-bold">
+                      {" "}
+                 EPERIENCED
+                    </span> developers to help  <span className="lg:text-7xl tracking-tight bg-gradient-to-r from-rb-blue via-amber-400 to-rb-silver bg-clip-text text-transparent font-poppins font-bold">
+                      {" "}
+                  YOU
+                    </span> present
+                    confidently and  <span className="lg:text-6xl tracking-tight bg-gradient-to-r from-rb-blue via-amber-400 to-rb-silver bg-clip-text text-transparent font-poppins font-bold">
+                      {" "}
+              STAND-OUT
+                    </span>.
                   </p>
                 </motion.div>
 
@@ -176,10 +185,13 @@ export const Hero = () => {
                   transition={{ duration: 0.6 }}
                   className="absolute w-full"
                 >
-                  <p className="text-4xl sm:text-5xl font-bold leading-tight">
-                    <span className="text-rb-blue">AVITAL.</span>
+                  <p className="text-3xl sm:text-5xl font-bold leading-tight mt-5">
+                    <span className="text-rb-blue">@ AVITAL.</span>
                     <br />
-                    <span className="text-rb-silver">HIRE THE BEST</span>
+                    <span className="text-rb-silver">you are hiring the </span>
+                    <span className="lg:text-7xl tracking-tight bg-gradient-to-r from-rb-blue via-amber-500 to-rb-silver bg-clip-text text-transparent font-poppins font-bold ">
+                      BEST
+                    </span>{" "}
                   </p>
                 </motion.div>
 
@@ -192,9 +204,13 @@ export const Hero = () => {
                   transition={{ duration: 0.6 }}
                   className="absolute w-full"
                 >
-                  <p className="text-rb-gray text-lg sm:text-xl leading-relaxed">
-                    We build together with you, so you don’t just submit a
-                    project — you actually understand it and grow from it.
+                  <p className="text-4xl sm:text-4xl font-bold leading-tight">
+                    We build together with{" "}
+                    <span className="lg:text-8xl tracking-tight bg-gradient-to-r from-rb-blue via-amber-400 to-rb-silver bg-clip-text text-transparent font-poppins font-bold">
+                      YOU
+                    </span>{" "}
+                    , so you don’t just submit a project — you actually
+                    understand it and grow from it.
                   </p>
                 </motion.div>
 
@@ -207,11 +223,26 @@ export const Hero = () => {
                   transition={{ duration: 0.6 }}
                   className="absolute w-full"
                 >
-                  <p className="text-rb-gray text-lg sm:text-xl leading-relaxed">
-                    Custom solutions. Clear documentation. On-time delivery.
+                <p className="text-4xl sm:text-4xl font-bold leading-tight mt-5">
+                <span className="lg:text-5xl tracking-tight bg-gradient-to-r from-rb-blue via-amber-400 to-rb-silver bg-clip-text text-transparent font-poppins font-bold">
+                      {" "}
+                   CUSTOM
+                    </span> solutions.   <span className="lg:text-5xl tracking-tight bg-gradient-to-r from-rb-blue via-amber-400 to-rb-silver bg-clip-text text-transparent font-poppins font-bold">
+                      {" "}
+                   CLEAR
+                    </span> documentation.  On <span className="lg:text-5xl tracking-tight bg-gradient-to-r from-rb-blue via-amber-400 to-rb-silver bg-clip-text text-transparent font-poppins font-bold">
+                      {" "}
+                 TIME
+                    </span> delivery.
                     <span className="text-rb-silver font-semibold">
                       {" "}
-                      A project YOU understand.
+                      A project   <span className="lg:text-5xl tracking-tight bg-gradient-to-r from-rb-blue via-amber-400 to-rb-silver bg-clip-text text-transparent font-poppins font-bold">
+                      {" "}
+                   YOU
+                    </span>   <span className="lg:text-4xl tracking-tight bg-gradient-to-r from-rb-blue via-amber-400 to-rb-silver bg-clip-text text-transparent font-poppins font-bold">
+                      {" "}
+                   UNDERSTAND
+                    </span>
                     </span>
                   </p>
                 </motion.div>
