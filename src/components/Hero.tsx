@@ -44,7 +44,7 @@ const descriptions = [
 
 export const Hero = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const [headerRef, headerInView] = useInView({
+  const [headerRef, _headerInView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
