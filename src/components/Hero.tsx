@@ -186,7 +186,10 @@ export const Hero = () => {
                   className="absolute w-full"
                 >
                   <p className="text-3xl sm:text-5xl font-bold leading-tight mt-5">
-                    <span className="text-rb-blue">@ AVITAL.</span>
+                  
+                    <span className="lg:text-7xl tracking-tight bg-gradient-to-r from-rb-blue via-amber-500 to-rb-silver bg-clip-text text-transparent font-poppins font-bold ">
+                    @ AVITAL.
+                    </span>{" "}
                     <br />
                     <span className="text-rb-silver">you are hiring the </span>
                     <span className="lg:text-7xl tracking-tight bg-gradient-to-r from-rb-blue via-amber-500 to-rb-silver bg-clip-text text-transparent font-poppins font-bold ">
