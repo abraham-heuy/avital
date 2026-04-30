@@ -1,15 +1,9 @@
+// Login.tsx – vertically/horizontally centered, back button, mobile‑first, no card
 import { motion } from 'framer-motion';
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login, getMe } from '../../services/api.service';
-
-interface Particle {
-  x: number;
-  y: number;
-  life: number;
-  size: number;
-  id: number;
-}
+import { getMe, login } from '../../services/api.service';
+import { BaseLayout } from '../../components/BaseLayout';
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -19,55 +13,6 @@ export const Login = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [particles, setParticles] = useState<Particle[]>([]);
-  const requestRef = useRef<number>(0);
-  const lastPositionRef = useRef({ x: 0, y: 0 });
-  const particleIdRef = useRef(0);
-
-  // Hide default cursor
-  useEffect(() => {
-    document.body.style.cursor = 'none';
-    return () => {
-      document.body.style.cursor = '';
-    };
-  }, []);
-
-  // Particle animation loop
-  useEffect(() => {
-    const animateParticles = () => {
-      setParticles((prev) =>
-        prev
-          .map((p) => ({ ...p, life: p.life - 0.02 }))
-          .filter((p) => p.life > 0)
-      );
-      requestRef.current = requestAnimationFrame(animateParticles);
-    };
-    requestRef.current = requestAnimationFrame(animateParticles);
-    return () => {
-      if (requestRef.current) cancelAnimationFrame(requestRef.current);
-    };
-  }, []);
-
-  // Add particles on mouse move
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const x = e.clientX;
-    const y = e.clientY;
-    const distance = Math.hypot(x - lastPositionRef.current.x, y - lastPositionRef.current.y);
-    if (distance > 10) {
-      const newParticles: Particle[] = [];
-      for (let i = 0; i < 3; i++) {
-        newParticles.push({
-          x: x + (Math.random() - 0.5) * 15,
-          y: y + (Math.random() - 0.5) * 15,
-          life: 1,
-          size: Math.random() * 4 + 2,
-          id: particleIdRef.current++,
-        });
-      }
-      setParticles((prev) => [...prev, ...newParticles].slice(-200));
-      lastPositionRef.current = { x, y };
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,17 +23,11 @@ export const Login = () => {
       await login(email, password);
       const user = await getMe();
       setSuccess(`Welcome back, ${user.fullname}! Redirecting...`);
-      // Wait 1.5 seconds to show the success message
       setTimeout(() => {
-        if (user.role === 'admin') {
-          navigate('/dashboard/admin');
-        } else {
-          navigate('/dashboard/user');
-        }
+        navigate(user.role === 'admin' ? '/dashboard/admin' : '/dashboard/user');
       }, 1500);
     } catch (err: any) {
       const message = err.response?.data?.message || 'Login failed. Please try again.';
-      // Check if the error indicates an unverified account
       if (message.toLowerCase().includes('not verified') || message.toLowerCase().includes('verification code')) {
         navigate('/verify', { state: { email, type: 'verify' } });
       } else {
@@ -100,95 +39,48 @@ export const Login = () => {
   };
 
   return (
-    <div
-      className="relative min-h-screen bg-rb-black overflow-hidden flex items-center justify-center"
-      onMouseMove={handleMouseMove}
-    >
-      {/* Animated gradient blobs (same as before) */}
-      <div className="absolute inset-0 pointer-events-none">
-        <motion.div
-          className="absolute w-[500px] h-[500px] rounded-full bg-rb-blue/10 blur-3xl"
-          animate={{ x: [0, 80, 0], y: [0, 50, 0] }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-          style={{ left: '5%', top: '10%' }}
-        />
-        <motion.div
-          className="absolute w-[600px] h-[600px] rounded-full bg-rb-steel/10 blur-3xl"
-          animate={{ x: [0, -70, 0], y: [0, -40, 0] }}
-          transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-          style={{ right: '5%', bottom: '10%' }}
-        />
-        <motion.div
-          className="absolute w-[400px] h-[400px] rounded-full bg-rb-blue/5 blur-3xl"
-          animate={{ x: [0, 40, 0], y: [0, -30, 0] }}
-          transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-          style={{ left: '30%', top: '40%' }}
-        />
-        <motion.div
-          className="absolute w-[350px] h-[350px] rounded-full bg-rb-steel/8 blur-3xl"
-          animate={{ x: [0, -30, 0], y: [0, 50, 0] }}
-          transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
-          style={{ right: '25%', bottom: '30%' }}
-        />
-        <div
-          className="absolute inset-0 opacity-[0.025]"
-          style={{
-            backgroundImage: `linear-gradient(var(--rb-silver, #ccc) 1px, transparent 1px),
-                              linear-gradient(90deg, var(--rb-silver, #ccc) 1px, transparent 1px)`,
-            backgroundSize: '60px 60px',
-          }}
-        />
+    <BaseLayout>
+      {/* Back button – positioned top left, responsive */}
+      <div className="fixed top-4 left-4 z-20">
+        <button
+          onClick={() => navigate('/')}
+          className="flex items-center gap-1 text-ink-soft hover:text-ink transition-colors text-sm font-sketch bg-fog-lime/20 backdrop-blur-sm px-3 py-1.5 rounded-full border border-accent-lime/30"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
+          </svg>
+          Back
+        </button>
       </div>
 
-      {/* Particle trail */}
-      {particles.map((p) => (
-        <div
-          key={p.id}
-          className="fixed rounded-full bg-rb-blue pointer-events-none"
-          style={{
-            left: p.x - p.size / 2,
-            top: p.y - p.size / 2,
-            width: p.size,
-            height: p.size,
-            opacity: p.life * 0.8,
-            boxShadow: `0 0 ${p.size * 2}px rgba(167,199,231,0.8)`,
-          }}
-        />
-      ))}
-
-      {/* Login Form */}
-      <div className="relative z-10 w-full max-w-md px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="rounded-2xl p-8"
-          style={{ background: 'transparent' }}
-        >
+      {/* Centered form container – flex to fill parent height */}
+      <div className="flex items-center justify-center min-h-[80vh] w-full">
+        <div className="w-full max-w-md mx-auto px-4">
           <div className="text-center mb-8">
-            <div className="text-3xl font-display font-bold text-rb-silver">
-              a<span className="text-rb-blue">V</span>ital
+            <div className="text-3xl font-display font-bold text-ink">
+              a<span className="text-accent-limeStrong">V</span>ital
             </div>
-            <p className="text-rb-gray text-sm mt-2">Sign in to your account</p>
+            <p className="text-ink-soft text-sm mt-2 font-sketch">Sign in to your account</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-xs font-semibold tracking-widest uppercase text-rb-silver/50 mb-2">
+              <label className="block text-[11px] font-semibold tracking-wider uppercase text-ink-soft mb-1 font-sketch">
                 Email address
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-0 py-2 bg-transparent border-b border-rb-silver/30 text-rb-silver text-sm placeholder:text-rb-gray/40 focus:border-rb-blue focus:outline-none transition-all duration-200"
+                className="w-full px-0 py-2 bg-transparent border-b border-accent-lime/30 text-ink text-sm placeholder:text-ink-faint focus:border-accent-lime/80 focus:outline-none transition-all duration-200 font-sketch"
                 placeholder="you@university.ac.ke"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold tracking-widest uppercase text-rb-silver/50 mb-2">
+              <label className="block text-[11px] font-semibold tracking-wider uppercase text-ink-soft mb-1 font-sketch">
                 Password
               </label>
               <div className="relative">
@@ -196,14 +88,14 @@ export const Login = () => {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-0 py-2 bg-transparent border-b border-rb-silver/30 text-rb-silver text-sm placeholder:text-rb-gray/40 focus:border-rb-blue focus:outline-none transition-all duration-200 pr-10"
+                  className="w-full px-0 py-2 bg-transparent border-b border-accent-lime/30 text-ink text-sm placeholder:text-ink-faint focus:border-accent-lime/80 focus:outline-none transition-all duration-200 pr-10 font-sketch"
                   placeholder="••••••••"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center text-rb-gray hover:text-rb-blue transition-colors"
+                  className="absolute inset-y-0 right-0 flex items-center text-ink-faint hover:text-accent-limeStrong transition-colors"
                 >
                   {showPassword ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -220,16 +112,15 @@ export const Login = () => {
             </div>
 
             {error && (
-              <div className="text-red-400 text-xs text-center bg-red-400/10 rounded-lg p-2">
+              <div className="text-red-400 text-xs text-center bg-red-400/10 rounded-lg p-2 font-sketch">
                 {error}
               </div>
             )}
-
             {success && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="text-green-400 text-xs text-center bg-green-400/10 rounded-lg p-2"
+                className="text-green-400 text-xs text-center bg-green-400/10 rounded-lg p-2 font-sketch"
               >
                 {success}
               </motion.div>
@@ -238,19 +129,19 @@ export const Login = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 rounded-full bg-gradient-to-r from-rb-blue to-rb-steel text-rb-black font-bold text-sm hover:opacity-90 transition-all duration-300 disabled:opacity-50"
+              className="w-full py-3 rounded-pill bg-gradient-to-r from-accent-lime to-accent-limeStrong text-ink font-bold text-sm hover:shadow-glow transition-all duration-300 disabled:opacity-50 font-sketch"
             >
               {isLoading ? 'Signing in...' : 'Sign in →'}
             </button>
           </form>
 
           <div className="mt-6 text-center">
-            <a href="/forgot-password" className="text-xs text-rb-gray hover:text-rb-blue transition-colors">
+            <a href="/forgot-password" className="text-xs text-ink-soft hover:text-accent-limeStrong transition-colors font-sketch">
               Forgot password?
             </a>
           </div>
-        </motion.div>
+        </div>
       </div>
-    </div>
+    </BaseLayout>
   );
 };

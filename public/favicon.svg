@@ -1,10 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <path d="M22 80 L38 20 L54 20 L70 80 L56 80 L48 58 L36 58 L28 80 Z" fill="url(#iceGradient)"/>
-  <path d="M37 48 L47 48 L42 30 Z" fill="url(#iceGradient)"/>
   <defs>
-    <linearGradient id="iceGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#EAF4FA"/>
-      <stop offset="100%" stop-color="#C9CED6"/>
+    <linearGradient id="limePeach" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C7F36B"/>
+      <stop offset="100%" stop-color="#A6E200"/>
+    </linearGradient>
+    <linearGradient id="peachLime" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFD699"/>
+      <stop offset="100%" stop-color="#C7F36B"/>
     </linearGradient>
   </defs>
+
+  <!-- Outer ring (optional, adds depth) -->
+  <circle cx="50" cy="50" r="46" fill="none" stroke="url(#peachLime)" stroke-width="1.2" stroke-dasharray="2 4" />
+
+  <!-- Main A shape -->
+  <path
+    d="M22 80 L38 20 L54 20 L70 80 L56 80 L48 58 L36 58 L28 80 Z"
+    fill="url(#limePeach)"
+  />
+  <!-- Inner crossbar -->
+  <path
+    d="M37 48 L47 48 L42 30 Z"
+    fill="url(#peachLime)"
+  />
 </svg>

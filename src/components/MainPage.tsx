@@ -1,31 +1,26 @@
-import { motion } from 'framer-motion'
+import { BaseLayout } from './BaseLayout'
 import { Navigation } from './Navigation'
 import { Hero } from './Hero'
 import { Services } from './Services'
 import { Projects } from './Projects'
 import { HowItWorks } from './HowItWorks'
+import { PricingCards } from './offers'
 import { Contact } from './Contact'
 import { Footer } from './Footer'
-import { Pricing } from './offers'
 
 export const MainPage = () => {
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
-      className="min-h-screen bg-rb-black overflow-x-hidden w-full"
-    >
-      <div className="w-full overflow-x-hidden flex flex-col">
-        <Navigation />
+    <BaseLayout>
+      <Navigation />
+      <div className="flex flex-col w-full">   {/* ← force vertical stacking */}
         <Hero />
         <Services />
-        <Pricing />
         <Projects />
-        <HowItWorks />
+        <PricingCards />
+        <HowItWorks />       
         <Contact />
         <Footer />
       </div>
-    </motion.div>
+    </BaseLayout>
   )
 }

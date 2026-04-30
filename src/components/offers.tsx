@@ -1,576 +1,411 @@
-import { motion, useScroll, useTransform } from 'framer-motion'
+// PricingCards.tsx – with character & conversation, credit‑card flip, exchange rates, theme fonts
+import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 
+import characterImg from '../assets/middle-age-caucasian-man-playing-basketball-with-afro-african-bo/qokp_ex3a_230531.jpg' 
+
+// Pricing data (same as your original "packages")
 const packages = [
   {
     id: 'starter',
     name: 'Starter',
     badge: null,
-    flash: null,
-    solo: {
-      original: 29,
-      price: 19,
-      discount: 34,
-      period: 'one-time',
-    },
-    group: {
-      original: 12,
-      price: 8,
-      discount: 33,
-      period: 'per student',
-      minStudents: 3,
-      maxStudents: 5,
-    },
+    solo: { original: 29, price: 19, discount: 34, period: 'one‑time' },
+    group: { original: 12, price: 8, discount: 33, period: 'per student', minStudents: 3, maxStudents: 5 },
     description: 'Perfect for a single stuck point — a bug, a concept, or a quick code review.',
     features: [
-      '1 x 45-minute consultation session',
-      'Pre-session brief form so we come prepared',
+      '1 x 45‑minute consultation session',
+      'Pre‑session brief form so we come prepared',
       'Session summary and action points after',
-      'Follow-up Q&A via chat for 48 hours',
+      'Follow‑up Q&A via chat for 48 hours',
     ],
-    accentFrom: 'from-rb-blue/15',
-    accentTo: 'to-transparent',
-    borderIdle: 'border-rb-silver/15',
-    borderHover: 'hover:border-rb-blue/35',
+    tag: 'Essential',
   },
   {
     id: 'builder',
     name: 'Builder',
     badge: 'Most Popular',
-    flash: { label: 'Flash Deal', expiresHours: 11, expiresMinutes: 47 },
-    solo: {
-      original: 79,
-      price: 49,
-      discount: 38,
-      period: 'one-time',
-    },
-    group: {
-      original: 32,
-      price: 19,
-      discount: 41,
-      period: 'per student',
-      minStudents: 3,
-      maxStudents: 8,
-    },
-    description: 'Ideal for students building a semester project or preparing for an upcoming deadline.',
+    solo: { original: 79, price: 49, discount: 38, period: 'one‑time' },
+    group: { original: 32, price: 19, discount: 41, period: 'per student', minStudents: 3, maxStudents: 8 },
+    description: 'Ideal for students building a semester project or preparing for a deadline.',
     features: [
-      '4 x 45-minute consultation sessions',
+      '4 x 45‑minute consultation sessions',
       'Project architecture review (written report)',
       'Code review with annotated inline feedback',
-      'Priority matching to domain-relevant consultant',
-      '7-day chat support between sessions',
+      'Priority matching to domain‑relevant consultant',
+      '7‑day chat support between sessions',
       'Resume or LinkedIn review included',
     ],
-    accentFrom: 'from-rb-blue/20',
-    accentTo: 'to-rb-steel/10',
-    borderIdle: 'border-rb-blue/30',
-    borderHover: 'hover:border-rb-blue/60',
+    tag: 'Popular',
   },
   {
     id: 'capstone',
     name: 'Capstone',
     badge: 'Best Value',
-    flash: null,
-    solo: {
-      original: 149,
-      price: 99,
-      discount: 34,
-      period: 'full project',
-    },
-    group: {
-      original: 59,
-      price: 39,
-      discount: 34,
-      period: 'per student',
-      minStudents: 2,
-      maxStudents: 6,
-    },
-    description: 'End-to-end guidance for final year projects, dissertations, and capstone submissions.',
+    solo: { original: 149, price: 99, discount: 34, period: 'full project' },
+    group: { original: 59, price: 39, discount: 34, period: 'per student', minStudents: 2, maxStudents: 6 },
+    description: 'End‑to‑end guidance for final year projects, dissertations, and capstone submissions.',
     features: [
-      '8 x 45-minute sessions across your project timeline',
+      '8 x 45‑minute sessions across your project timeline',
       'Topic selection and feasibility review',
       'Full architecture and tech stack planning',
-      'Weekly milestone check-ins',
+      'Weekly milestone check‑ins',
       'Report writing and documentation coaching',
       'Presentation and mock defense preparation',
       'Dedicated consultant for the full engagement',
-      '30-day post-submission support',
+      '30‑day post‑submission support',
     ],
-    accentFrom: 'from-rb-steel/20',
-    accentTo: 'to-rb-blue/10',
-    borderIdle: 'border-rb-steel/30',
-    borderHover: 'hover:border-rb-steel/60',
+    tag: 'Complete',
   },
 ]
 
-// Countdown timer component
-const Countdown = ({ hours, minutes }: { hours: number; minutes: number }) => {
-  const [time, setTime] = useState({ h: hours, m: minutes, s: 59 })
-
-  useState(() => {
-    const interval = setInterval(() => {
-      setTime((prev) => {
-        if (prev.s > 0) return { ...prev, s: prev.s - 1 }
-        if (prev.m > 0) return { ...prev, m: prev.m - 1, s: 59 }
-        if (prev.h > 0) return { h: prev.h - 1, m: 59, s: 59 }
-        return prev
-      })
-    }, 1000)
-    return () => clearInterval(interval)
-  })
-
-  const pad = (n: number) => String(n).padStart(2, '0')
-
-  return (
-    <div className="flex items-center gap-1">
-      {[pad(time.h), pad(time.m), pad(time.s)].map((unit, i) => (
-        <span key={i} className="flex items-center gap-1">
-          <motion.span
-            key={unit}
-            initial={{ y: -6, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="inline-block w-7 text-center text-sm font-bold text-rb-black bg-rb-blue rounded px-1 py-0.5 tabular-nums"
-          >
-            {unit}
-          </motion.span>
-          {i < 2 && <span className="text-rb-blue font-bold text-sm">:</span>}
-        </span>
-      ))}
-    </div>
-  )
-}
-
-// Toggle switch
-const Toggle = ({
-  value,
-  onChange,
-}: {
-  value: 'solo' | 'group'
-  onChange: (v: 'solo' | 'group') => void
-}) => (
-  <div className="flex items-center gap-1 p-1 rounded-full bg-rb-dark/60 border border-rb-silver/15 backdrop-blur-sm">
+// Toggle component (solo / group)
+const Toggle = ({ value, onChange }: { value: 'solo' | 'group'; onChange: (v: 'solo' | 'group') => void }) => (
+  <div className="flex items-center gap-1 p-1 rounded-full bg-fog-lime/30 border border-accent-lime/30 backdrop-blur-sm">
     {(['solo', 'group'] as const).map((opt) => (
       <button
         key={opt}
         onClick={() => onChange(opt)}
-        className={`
-          relative px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300
-          ${value === opt
-            ? 'text-rb-black'
-            : 'text-rb-gray hover:text-rb-silver'
-          }
-        `}
+        className={`relative px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
+          value === opt ? 'text-ink' : 'text-ink-soft hover:text-ink'
+        }`}
       >
         {value === opt && (
           <motion.div
             layoutId="toggle-pill"
-            className="absolute inset-0 rounded-full bg-gradient-to-r from-rb-blue to-rb-steel"
+            className="absolute inset-0 rounded-full bg-gradient-to-r from-accent-lime to-accent-limeStrong shadow-glow"
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
           />
         )}
-        <span className="relative z-10 capitalize">
-          {opt === 'solo' ? 'Solo Student' : 'Group (3–8)'}
+        <span className="relative z-10 capitalize font-sketch">
+          {opt === 'solo' ? 'Solo Student' : `Group (${opt === 'group' ? '3–8' : '2–6'})`}
         </span>
       </button>
     ))}
   </div>
 )
 
-const PackageCard = ({
+// Speech bubble component (conversational)
+const SpeechBubble = ({ text }: { text: string }) => (
+  <div className="relative bg-fog-lime/90 backdrop-blur-sm rounded-organic p-3 shadow-soft border border-accent-lime/40">
+    <div className="absolute -bottom-2 left-8 w-4 h-4 bg-fog-lime/90 rotate-45 border-r border-b border-accent-lime/40" />
+    <p className="text-ink text-sm font-sketch leading-relaxed">{text}</p>
+  </div>
+)
+
+// Individual credit‑card flip component
+const CreditCard = ({
   pkg,
   mode,
-  index,
-  inView,
   exchangeRate,
+  isFlipped,
+  onFlip,
+  onHover,
 }: {
   pkg: typeof packages[0]
   mode: 'solo' | 'group'
-  index: number
-  inView: boolean
   exchangeRate: number | null
+  isFlipped: boolean
+  onFlip: () => void
+  onHover: (name: string) => void
 }) => {
-  const price = mode === 'solo' ? pkg.solo : pkg.group
-  const isPopular = pkg.badge === 'Most Popular'
-  const priceUSD = price.price
+  const priceData = mode === 'solo' ? pkg.solo : pkg.group
+  const priceUSD = priceData.price
   const priceKES = exchangeRate ? Math.round(priceUSD * exchangeRate) : null
+  const originalUSD = priceData.original
+  const discount = priceData.discount
+
+  const groupNote = mode === 'group' && pkg.id !== 'starter'
+    ? `${pkg.group.minStudents}–${pkg.group.maxStudents} students`
+    : null
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ delay: index * 0.14, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ y: -6 }}
-      className={`
-        relative flex flex-col rounded-2xl overflow-hidden
-        bg-gradient-to-br ${pkg.accentFrom} ${pkg.accentTo}
-        bg-rb-dark/50 backdrop-blur-md
-        border ${isPopular ? 'border-rb-blue/50' : pkg.borderIdle} ${pkg.borderHover}
-        transition-all duration-300
-        shadow-xl
-        ${isPopular ? 'ring-1 ring-rb-blue/20' : ''}
-      `}
+    <div
+      className="relative w-full max-w-md mx-auto h-60 cursor-pointer"
+      style={{ perspective: '1200px' }}
+      onClick={onFlip}
+      onMouseEnter={() => onHover(pkg.name)}
     >
-      {/* Popular glow */}
-      {isPopular && (
-        <div className="absolute inset-0 bg-gradient-to-b from-rb-blue/8 to-transparent pointer-events-none rounded-2xl" />
-      )}
-
-      {/* Flash deal banner */}
-      {pkg.flash && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 + index * 0.14 }}
-          className="relative z-10 bg-gradient-to-r from-rb-blue to-rb-steel px-4 py-2 flex items-center justify-between gap-3"
+      <motion.div
+        className="relative w-full h-full"
+        animate={{ rotateY: isFlipped ? 180 : 0 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        style={{ transformStyle: 'preserve-3d' }}
+      >
+        {/* FRONT – credit card style */}
+        <div
+          className="absolute inset-0 rounded-2xl p-5 flex flex-col justify-between
+                     bg-gradient-to-br from-fog-lime/20 to-fog-lime/5 backdrop-blur-sm
+                     border-2 shadow-soft"
+          style={{
+            backfaceVisibility: 'hidden',
+            background: 'linear-gradient(135deg, rgba(199,243,107,0.12), rgba(199,243,107,0.04))',
+            borderColor: 'rgba(199,243,107,0.3)',
+          }}
         >
-          <div className="flex items-center gap-2">
-            <motion.div
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ repeat: Infinity, duration: 1.2 }}
-              className="w-2 h-2 rounded-full bg-rb-black"
-            />
-            <span className="text-rb-black text-xs font-bold tracking-widest uppercase">
-              {pkg.flash.label}
+          <div className="flex justify-between items-start">
+            <div className="w-10 h-8 rounded-md bg-accent-lime/20 border border-accent-lime/30" />
+            {pkg.badge && (
+              <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-accent-lime/30 text-accent-limeStrong font-sketch">
+                {pkg.badge}
+              </span>
+            )}
+          </div>
+          <div className="mt-2 text-xs tracking-wider text-ink-faint font-mono">
+            •••• •••• •••• {pkg.id.slice(0, 4).toUpperCase()}
+          </div>
+          <div>
+            <p className="text-ink-soft text-[10px] uppercase tracking-wider font-sketch">{pkg.tag}</p>
+            <h3 className="text-xl font-display font-bold text-ink">{pkg.name}</h3>
+            <div className="mt-1 flex items-baseline gap-2 flex-wrap">
+              <span className="text-2xl font-bold text-accent-limeStrong">${priceUSD}</span>
+              {priceKES && (
+                <span className="text-[11px] text-ink-faint font-sketch">≈ KES {priceKES.toLocaleString()}</span>
+              )}
+              {discount > 0 && (
+                <span className="text-[10px] line-through text-ink-faint ml-2">${originalUSD}</span>
+              )}
+            </div>
+            <p className="text-[9px] text-ink-faint mt-0.5 font-sketch">{priceData.period}</p>
+          </div>
+          <div className="flex justify-between items-center text-[9px] text-ink-faint">
+            <span>Valid • 30 days</span>
+            <span className="flex items-center gap-1">
+              <motion.span
+                animate={{ x: [0, 3, 0] }}
+                transition={{ repeat: Infinity, duration: 1.5 }}
+                className="font-sketch"
+              >
+                tap to flip
+              </motion.span>
+              <span>↻</span>
             </span>
           </div>
-          <Countdown hours={pkg.flash.expiresHours} minutes={pkg.flash.expiresMinutes} />
-        </motion.div>
-      )}
-
-      {/* Card body */}
-      <div className="relative z-10 flex flex-col flex-1 p-6">
-
-        {/* Badge row */}
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-xs font-semibold tracking-widest uppercase text-rb-silver/50">
-            {pkg.name}
-          </span>
-          {pkg.badge && (
-            <span className={`
-              text-xs font-bold tracking-wide px-3 py-1 rounded-full
-              ${isPopular
-                ? 'bg-rb-blue/20 text-rb-blue border border-rb-blue/30'
-                : 'bg-rb-steel/20 text-rb-silver border border-rb-silver/20'
-              }
-            `}>
-              {pkg.badge}
-            </span>
-          )}
         </div>
 
-        {/* Price */}
-        <div className="mb-1">
-          <div className="flex items-end gap-2 flex-wrap">
-            <motion.span
-              key={`${pkg.id}-${mode}-price`}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35 }}
-              className="text-4xl sm:text-5xl font-bold text-rb-silver"
-            >
-              ${priceUSD}
-            </motion.span>
-            {priceKES && (
-              <div className="text-sm text-rb-gray/70 mb-1">
-                ≈ KES {priceKES.toLocaleString()}
-              </div>
+        {/* BACK – details */}
+        <div
+          className="absolute inset-0 rounded-2xl p-5 flex flex-col justify-between
+                     bg-gradient-to-br from-fog-lime/30 to-fog-lime/10 backdrop-blur-sm
+                     border-2 shadow-soft"
+          style={{
+            backfaceVisibility: 'hidden',
+            transform: 'rotateY(180deg)',
+            borderColor: 'rgba(199,243,107,0.4)',
+          }}
+        >
+          <div className="overflow-y-auto h-full pr-1 custom-scrollbar">
+            <p className="text-ink-soft text-xs leading-relaxed font-sketch">{pkg.description}</p>
+            {groupNote && (
+              <p className="text-[10px] text-accent-limeStrong mt-2 font-sketch">
+                👥 Group: {groupNote} share one booking — each student saves!
+              </p>
             )}
-            <div className="mb-2 ml-auto">
-              <span className="text-rb-gray/50 line-through text-sm block">${price.original}</span>
-              <span className="text-rb-gray text-xs">{price.period}</span>
+            <div className="mt-3">
+              <p className="text-[10px] font-bold uppercase text-accent-limeStrong mb-2 font-sketch">
+                What's included
+              </p>
+              <ul className="space-y-1.5">
+                {pkg.features.slice(0, mode === 'solo' ? 4 : 5).map((f, i) => (
+                  <li key={i} className="flex items-start gap-2 text-[10px] text-ink-soft font-sketch">
+                    <span className="mt-0.5 w-1 h-1 rounded-full bg-accent-limeStrong" />
+                    {f}
+                  </li>
+                ))}
+                {mode === 'group' && pkg.id === 'builder' && (
+                  <li className="text-[10px] text-accent-limeStrong italic font-sketch">+ Shared cohort dashboard</li>
+                )}
+              </ul>
             </div>
           </div>
-          <motion.div
-            key={`${pkg.id}-${mode}-discount`}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="inline-flex items-center gap-1.5 mt-1 px-2.5 py-0.5 rounded-full bg-green-500/15 border border-green-500/25"
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })
+            }}
+            className="mt-3 w-full py-1.5 rounded-pill bg-gradient-to-r from-accent-lime to-accent-limeStrong text-ink font-bold text-[10px] hover:shadow-glow transition-all font-sketch"
           >
-            <span className="text-green-400 text-xs font-bold">{price.discount}% off</span>
-          </motion.div>
+            Choose {pkg.name} →
+          </button>
         </div>
-
-        {/* Group note */}
-        {mode === 'group' && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-rb-blue/70 text-xs mt-2 mb-3"
-          >
-            {pkg.group.minStudents}–{pkg.group.maxStudents} students share one booking — everyone saves
-          </motion.p>
-        )}
-
-        {/* Description */}
-        <p className="text-rb-gray text-sm leading-relaxed mt-3 mb-5">
-          {pkg.description}
-        </p>
-
-        {/* Features */}
-        <ul className="space-y-2.5 flex-1">
-          {pkg.features.map((f, i) => (
-            <motion.li
-              key={f}
-              initial={{ opacity: 0, x: -8 }}
-              animate={inView ? { opacity: 1, x: 0 } : {}}
-              transition={{ delay: 0.4 + index * 0.1 + i * 0.05 }}
-              className="flex items-start gap-2.5 text-sm text-rb-gray"
-            >
-              <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-rb-blue flex-shrink-0" />
-              {f}
-            </motion.li>
-          ))}
-        </ul>
-
-        {/* CTA */}
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-          className={`
-            mt-7 w-full py-3 rounded-xl font-bold text-sm tracking-wide transition-all duration-300
-            ${isPopular
-              ? 'bg-gradient-to-r from-rb-blue to-rb-steel text-rb-black hover:opacity-90 shadow-lg'
-              : 'border border-rb-silver/25 text-rb-silver hover:border-rb-blue/50 hover:text-rb-blue hover:bg-rb-blue/5'
-            }
-          `}
-        >
-          Get {pkg.name} →
-        </motion.button>
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   )
 }
 
-export const Pricing = () => {
+// Main component
+export const PricingCards = () => {
   const [mode, setMode] = useState<'solo' | 'group'>('solo')
   const [exchangeRate, setExchangeRate] = useState<number | null>(null)
-  const [lastUpdated, setLastUpdated] = useState<string | null>(null)
   const [rateLoading, setRateLoading] = useState(true)
-  const [rateError, setRateError] = useState(false)
+  const [flippedId, setFlippedId] = useState<string | null>(null)
+  const [message, setMessage] = useState("Hi! I'm your pricing assistant. Tap any card to see what's inside 👆")
+  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 })
 
-  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.05 })
-  const [headerRef, headerInView] = useInView({ triggerOnce: true, threshold: 0.15 })
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start end', 'end start'],
-  })
-  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '30%'])
-
-  // Fetch exchange rate from a free API
+  // Fetch exchange rate
   useEffect(() => {
-    const fetchExchangeRate = async () => {
+    const fetchRate = async () => {
       try {
-        setRateLoading(true)
-        // Using exchangerate-api.com (free, no API key required for limited requests)
-        const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD')
-        const data = await response.json()
-        if (data && data.rates && data.rates.KES) {
-          setExchangeRate(data.rates.KES)
-          setLastUpdated(data.time_last_updated ? new Date(data.time_last_updated * 1000).toLocaleString() : new Date().toLocaleString())
-        } else {
-          throw new Error('Invalid response')
-        }
-      } catch (error) {
-        console.error('Failed to fetch exchange rate:', error)
-        setRateError(true)
-        // Fallback to a reasonable default (e.g., 130 KES per USD) if API fails
+        const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD')
+        const data = await res.json()
+        if (data?.rates?.KES) setExchangeRate(data.rates.KES)
+        else setExchangeRate(130)
+      } catch {
         setExchangeRate(130)
-        setLastUpdated('N/A (using fallback rate)')
       } finally {
         setRateLoading(false)
       }
     }
-    fetchExchangeRate()
+    fetchRate()
   }, [])
 
+  const handleFlip = (id: string) => {
+    setFlippedId(prev => (prev === id ? null : id))
+    if (flippedId !== id) {
+      const pkg = packages.find(p => p.id === id)
+      if (pkg) setMessage(`${pkg.name} plan – ${pkg.description} Tap again to flip back.`)
+    } else {
+      setMessage("You closed the card. Tap another to explore!")
+    }
+  }
+
+  const handleCardHover = (name: string) => {
+    setMessage(`${name} plan – click to see full details`)
+  }
+
   return (
-    <section
-      id="projects"
-      ref={containerRef}
-      className="relative bg-rb-black overflow-hidden"
-    >
-      {/* ── Background — same as Hero & Services ── */}
-      <motion.div className="absolute inset-0 pointer-events-none" style={{ y: bgY }}>
-        <motion.div
-          className="absolute w-[500px] h-[500px] rounded-full bg-rb-blue/5 blur-3xl"
-          animate={{ x: [0, 40, 0], y: [0, -30, 0] }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-          style={{ left: '0%', top: '10%' }}
-        />
-        <motion.div
-          className="absolute w-[600px] h-[600px] rounded-full bg-rb-steel/5 blur-3xl"
-          animate={{ x: [0, -40, 0], y: [0, 40, 0] }}
-          transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-          style={{ right: '0%', bottom: '5%' }}
-        />
-        <motion.div
-          className="absolute w-[350px] h-[350px] rounded-full bg-rb-blue/3 blur-2xl"
-          animate={{ x: [0, 30, 0], y: [0, -20, 0] }}
-          transition={{ duration: 16, repeat: Infinity, ease: 'linear' }}
-          style={{ left: '40%', top: '45%' }}
-        />
-        <div
-          className="absolute inset-0 opacity-[0.025]"
-          style={{
-            backgroundImage: `linear-gradient(var(--rb-silver, #ccc) 1px, transparent 1px),
-                              linear-gradient(90deg, var(--rb-silver, #ccc) 1px, transparent 1px)`,
-            backgroundSize: '60px 60px',
-          }}
-        />
-      </motion.div>
+    <section id="pricing" className="relative py-16 md:py-24 overflow-hidden">
+      <div className="container mx-auto px-4">
+        {/* Header */}
+        <div className="text-center mb-10">
+          <span className="inline-block px-3 py-1 rounded-full border border-accent-lime/40 bg-fog-lime text-accent-limeStrong text-[10px] font-semibold tracking-wider uppercase mb-3 font-sketch">
+            Pricing
+          </span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold text-ink leading-tight">
+            Choose your plan
+            <br />
+            <span className="text-accent-limeStrong">pay once, learn forever</span>
+          </h2>
+          <div className="w-16 h-0.5 bg-gradient-to-r from-accent-lime to-accent-limeStrong mx-auto mt-3" />
+        </div>
 
-      <div className="relative z-10 container mx-auto px-4">
+        {/* Exchange rate info */}
+        <div className="text-center mb-6">
+          {rateLoading ? (
+            <div className="text-ink-faint text-xs animate-pulse font-sketch">Loading exchange rate...</div>
+          ) : (
+            <div className="text-ink-faint text-xs font-sketch">
+              1 USD ≈ {exchangeRate?.toFixed(2)} KES • All prices include tax
+            </div>
+          )}
+        </div>
 
-        {/* ── Exchange Rate Info (Top Left) ── */}
-        <div className="flex justify-between items-start mb-4">
-          <div className="text-left">
-            {rateLoading ? (
-              <div className="text-xs text-rb-gray animate-pulse">Loading exchange rate...</div>
-            ) : rateError ? (
-              <div className="text-xs text-red-400">Exchange rate unavailable</div>
-            ) : (
-              <div className="text-xs text-rb-gray">
-                1 USD = {exchangeRate?.toFixed(2)} KES
-                {lastUpdated && <span className="block text-[10px] text-rb-gray/50">Updated: {lastUpdated}</span>}
+        {/* Two‑column layout: character + conversation on left, cards on right */}
+        <div className="flex flex-col lg:flex-row gap-10 items-start">
+          {/* Left column: character + speech bubble */}
+          <div className="lg:w-1/3 w-full sticky top-28">
+            <div className="relative flex flex-col items-center">
+              <div className="relative w-48 h-48 rounded-full overflow-hidden border-4 border-accent-lime/40 shadow-glow bg-fog-lime/20">
+                <img
+                  src={characterImg}
+                  alt="Pricing assistant"
+                  className="w-full h-full object-cover object-center"
+                />
               </div>
+              <div className="mt-4 w-full max-w-xs">
+                <SpeechBubble text={message} />
+              </div>
+              <div className="mt-6 text-center">
+                <p className="text-ink-soft text-xs font-sketch">Your pricing guide • here to help</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Right column: toggle + cards */}
+          <div className="lg:w-2/3 w-full">
+            {/* Toggle */}
+            <div className="flex justify-center mb-10">
+              <Toggle value={mode} onChange={setMode} />
+            </div>
+
+            {/* Group mode callout */}
+            {mode === 'group' && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center mb-8"
+              >
+                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-fog-lime/40 border border-accent-lime/30 text-accent-limeStrong text-xs font-sketch">
+                   Group mode: each student saves 30–40% vs solo pricing
+                </span>
+              </motion.div>
             )}
+
+            {/* Cards grid */}
+            <div ref={ref} className="grid grid-cols-1 md:grid-cols-2 gap-8 justify-items-center">
+              {packages.map((pkg, idx) => (
+                <motion.div
+                  key={pkg.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.4, delay: idx * 0.1 }}
+                  className="w-full flex justify-center"
+                >
+                  <CreditCard
+                    pkg={pkg}
+                    mode={mode}
+                    exchangeRate={exchangeRate}
+                    isFlipped={flippedId === pkg.id}
+                    onFlip={() => handleFlip(pkg.id)}
+                    onHover={handleCardHover}
+                  />
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* ── Header ── */}
-        <motion.div
-          ref={headerRef}
-          className="text-center mb-10 md:mb-14"
-        >
-          <motion.span
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={headerInView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 0.5 }}
-            className="inline-block px-4 py-1.5 rounded-full border border-rb-blue/30 bg-rb-blue/10 text-rb-blue text-xs font-semibold tracking-widest uppercase mb-6"
-          >
-            Student Packages
-          </motion.span>
-
-          <motion.h2
-            initial={{ opacity: 0, y: 30 }}
-            animate={headerInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 0.1, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold text-rb-silver leading-tight"
-          >
-            Transparent pricing,
-            <br />
-            <span className="text-rb-blue">built for students</span>
-          </motion.h2>
-
-          <motion.div
-            initial={{ scaleX: 0 }}
-            animate={headerInView ? { scaleX: 1 } : {}}
-            transition={{ delay: 0.35, duration: 0.6 }}
-            className="w-24 h-0.5 bg-gradient-to-r from-rb-blue to-rb-steel mx-auto mt-6 origin-center"
-          />
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={headerInView ? { opacity: 1 } : {}}
-            transition={{ delay: 0.45 }}
-            className="text-rb-gray mt-5 max-w-xl mx-auto text-base sm:text-lg leading-relaxed"
-          >
-            One student or a whole study group — every package has a group rate so the more you share, the less everyone pays.
-          </motion.p>
-
-          {/* Toggle */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={headerInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 0.55 }}
-            className="flex justify-center mt-8"
-          >
-            <Toggle value={mode} onChange={setMode} />
-          </motion.div>
-
-          {/* Group savings callout */}
-          {mode === 'group' && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-semibold"
-            >
-              <motion.span
-                animate={{ scale: [1, 1.3, 1] }}
-                transition={{ repeat: Infinity, duration: 1.5 }}
-                className="w-2 h-2 rounded-full bg-green-400 inline-block"
-              />
-              Group mode — each student saves an extra 30–40% vs solo pricing
-            </motion.div>
-          )}
-        </motion.div>
-
-        {/* ── Cards grid ── */}
-        <div ref={ref} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-          {packages.map((pkg, i) => (
-            <PackageCard
-              key={pkg.id}
-              pkg={pkg}
-              mode={mode}
-              index={i}
-              inView={inView}
-              exchangeRate={exchangeRate}
-            />
-          ))}
+        {/* Trust badges */}
+        <div className="mt-16 flex flex-wrap justify-center gap-4">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-fog-lime/10 border border-accent-lime/30">
+            <span className="w-2 h-2 rounded-full bg-accent-limeStrong animate-pulse" />
+            <span className="text-ink-soft text-[11px] font-sketch">No subscription • Pay once</span>
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-fog-lime/10 border border-accent-lime/30">
+            <span className="w-2 h-2 rounded-full bg-accent-limeStrong" />
+            <span className="text-ink-soft text-[11px] font-sketch">Money‑back guarantee</span>
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-fog-lime/10 border border-accent-lime/30">
+            <span className="w-2 h-2 rounded-full bg-accent-limeStrong" />
+            <span className="text-ink-soft text-[11px] font-sketch">Student‑verified consultants</span>
+          </div>
         </div>
 
-        {/* ── Bottom trust strip ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.7, duration: 0.6 }}
-          className="mt-14 md:mt-20 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center"
-        >
-          {[
-            { stat: 'No subscription', sub: 'Pay once, use it fully — no recurring charges' },
-            { stat: 'Money-back', sub: 'Not happy after your first session? Full refund, no questions' },
-            { stat: 'Student verified', sub: 'All consultants are current or recent students themselves' },
-          ].map((item, i) => (
-            <motion.div
-              key={item.stat}
-              initial={{ opacity: 0, y: 20 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.75 + i * 0.1 }}
-              className="rounded-2xl border border-rb-silver/10 bg-rb-dark/30 backdrop-blur-sm px-6 py-5"
-            >
-              <div className="text-rb-silver font-bold text-base mb-1">{item.stat}</div>
-              <div className="text-rb-gray text-xs leading-relaxed">{item.sub}</div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* ── Final CTA ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.9 }}
-          className="mt-10 rounded-2xl border border-rb-silver/15 bg-rb-dark/30 backdrop-blur-sm p-8 md:p-12 text-center"
-        >
-          <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-rb-silver mb-3">
-            Not sure which plan fits?
-          </h3>
-          <p className="text-rb-gray text-sm sm:text-base max-w-lg mx-auto mb-7">
-            Tell us what you are working on. We will match you to the right package and consultant — no commitment needed.
-          </p>
+        {/* Bottom CTA */}
+        <div className="mt-12 text-center">
           <button
             onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-            className="px-8 py-3 rounded-full bg-gradient-to-r from-rb-blue to-rb-steel text-rb-black font-bold text-sm sm:text-base hover:opacity-90 hover:scale-105 transition-all duration-300 shadow-lg"
+            className="px-6 py-3 rounded-pill bg-gradient-to-r from-accent-lime to-accent-limeStrong text-ink font-bold text-sm hover:shadow-glow transition-all font-sketch"
           >
-            Get matched for free →
+            Not sure? Get matched for free →
           </button>
-        </motion.div>
-
+        </div>
       </div>
+
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(199,243,107,0.1);
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #A6E200;
+          border-radius: 10px;
+        }
+      `}</style>
     </section>
   )
 }

@@ -1,4 +1,5 @@
-import { motion, useScroll, useTransform } from 'framer-motion'
+// Contact.tsx 
+import { motion} from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -9,15 +10,11 @@ export const Contact = () => {
   const [headerRef, headerInView] = useInView({ triggerOnce: true, threshold: 0.15 })
   const navigate = useNavigate()
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start end', 'end start'],
-  })
-  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '20%'])
+ 
 
   const stats = [
     { value: '< 1hr', label: 'Average response time' },
-    { value: '95%', label: 'Match satisfaction rate' },
+    { value: '95%', label: 'Match satisfaction' },
     { value: '100+', label: 'Projects completed' },
     { value: '50+', label: 'Active consultants' },
   ]
@@ -26,50 +23,21 @@ export const Contact = () => {
     <section
       id="contact"
       ref={containerRef}
-      className="relative bg-rb-black pt-0 pb-20 md:pb-32 overflow-hidden"
+      className="relative py-16 md:py-24 overflow-hidden"
     >
-      {/* ── Background ── */}
-      <motion.div className="absolute inset-0 pointer-events-none" style={{ y: bgY }}>
-        <motion.div
-          className="absolute w-[600px] h-[600px] rounded-full bg-rb-blue/8 blur-3xl"
-          animate={{ x: [0, 40, 0], y: [0, -30, 0] }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-          style={{ left: '-10%', top: '0%' }}
-        />
-        <motion.div
-          className="absolute w-[500px] h-[500px] rounded-full bg-rb-steel/8 blur-3xl"
-          animate={{ x: [0, -30, 0], y: [0, 30, 0] }}
-          transition={{ duration: 24, repeat: Infinity, ease: 'linear' }}
-          style={{ right: '-10%', bottom: '0%' }}
-        />
-        <motion.div
-          className="absolute w-[400px] h-[400px] rounded-full bg-rb-blue/5 blur-2xl"
-          animate={{ x: [0, 20, 0], y: [0, -20, 0] }}
-          transition={{ duration: 16, repeat: Infinity, ease: 'linear' }}
-          style={{ left: '40%', top: '30%' }}
-        />
-        <div
-          className="absolute inset-0 opacity-[0.025]"
-          style={{
-            backgroundImage: `linear-gradient(var(--rb-silver, #ccc) 1px, transparent 1px),
-                              linear-gradient(90deg, var(--rb-silver, #ccc) 1px, transparent 1px)`,
-            backgroundSize: '60px 60px',
-          }}
-        />
-      </motion.div>
+      {/* No background blobs – inherits BaseLayout canvas */}
 
-      <div className="relative z-10 container mx-auto px-4">
-
-        {/* ── Header ── */}
+      <div className="container mx-auto px-4 relative z-10">
+        {/* Header */}
         <motion.div
           ref={headerRef}
-          className="text-center mb-14 md:mb-20"
+          className="text-center mb-12 md:mb-16"
         >
           <motion.span
             initial={{ opacity: 0, scale: 0.9 }}
             animate={headerInView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 0.5 }}
-            className="inline-block px-4 py-1.5 rounded-full border border-rb-blue/30 bg-rb-blue/10 text-rb-blue text-xs font-semibold tracking-widest uppercase mb-6"
+            transition={{ duration: 0.4 }}
+            className="inline-block px-3 py-1 rounded-full border border-accent-lime/40 bg-fog-lime text-accent-limeStrong text-[10px] font-semibold tracking-wider uppercase mb-4 font-sketch"
           >
             Get Started
           </motion.span>
@@ -77,32 +45,32 @@ export const Contact = () => {
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             animate={headerInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 0.1, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold text-rb-silver leading-tight"
+            transition={{ delay: 0.1, duration: 0.6 }}
+            className="text-3xl sm:text-4xl md:text-5xl font-display font-bold text-ink leading-tight"
           >
             Your project deserves
             <br />
-            <span className="text-rb-blue">the right support</span>
+            <span className="text-accent-limeStrong">the right support</span>
           </motion.h2>
 
           <motion.div
             initial={{ scaleX: 0 }}
             animate={headerInView ? { scaleX: 1 } : {}}
-            transition={{ delay: 0.35, duration: 0.6 }}
-            className="w-24 h-0.5 bg-gradient-to-r from-rb-blue to-rb-steel mx-auto mt-6 origin-center"
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="w-16 h-0.5 bg-gradient-to-r from-accent-lime to-accent-limeStrong mx-auto mt-4"
           />
 
           <motion.p
             initial={{ opacity: 0 }}
             animate={headerInView ? { opacity: 1 } : {}}
-            transition={{ delay: 0.45 }}
-            className="text-rb-gray mt-5 max-w-xl mx-auto text-base sm:text-lg leading-relaxed"
+            transition={{ delay: 0.3 }}
+            className="text-ink-soft mt-4 max-w-xl mx-auto text-sm sm:text-base font-sketch"
           >
-            Fill in a short brief — takes two minutes — and we will match you with the right consultant and get back to you within the hour.
+            Fill in a short brief — takes two minutes — and we'll match you with the right consultant and get back to you within the hour.
           </motion.p>
         </motion.div>
 
-        {/* ── Stats row ── */}
+        {/* Stats row – lime accents */}
         <motion.div
           ref={ref}
           initial={{ opacity: 0, y: 20 }}
@@ -116,75 +84,73 @@ export const Contact = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: i * 0.1 }}
-              className="rounded-2xl border border-rb-silver/10 bg-rb-dark/30 backdrop-blur-sm p-5 text-center"
+              className="rounded-organic border border-accent-lime/30 bg-fog-lime/5 backdrop-blur-sm p-4 text-center"
             >
-              <div className="text-2xl font-bold text-rb-blue mb-1">{stat.value}</div>
-              <div className="text-xs text-rb-gray leading-tight">{stat.label}</div>
+              <div className="text-2xl font-bold text-accent-limeStrong font-display">{stat.value}</div>
+              <div className="text-[10px] text-ink-faint font-sketch mt-1">{stat.label}</div>
             </motion.div>
           ))}
         </motion.div>
 
-        {/* ── Main CTA card ── */}
+        {/* Main CTA card – dotted artistic border */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.3, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ delay: 0.3, duration: 0.6 }}
           className="max-w-2xl mx-auto"
         >
-          <div className="relative rounded-3xl overflow-hidden border border-rb-blue/25 bg-rb-dark/50 backdrop-blur-md p-8 md:p-12 text-center">
-
-            {/* Inner glow */}
-            <div className="absolute inset-0 bg-gradient-to-br from-rb-blue/10 via-transparent to-rb-steel/8 pointer-events-none" />
-
-            <motion.div
-              animate={{ scale: [1, 1.05, 1], opacity: [0.4, 0.7, 0.4] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-1 bg-gradient-to-r from-transparent via-rb-blue/60 to-transparent"
-            />
+          <div className="relative rounded-organic border-2 border-dashed border-accent-lime/50 bg-fog-lime/10 backdrop-blur-sm p-6 md:p-8 text-center shadow-soft hover:shadow-glow transition-all duration-300">
+            {/* Decorative floating corner elements (optional) */}
+            <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full border border-accent-lime/30" />
+            <div className="absolute -bottom-2 -left-2 w-12 h-12 rounded-full border border-accent-lime/20" />
 
             <div className="relative z-10">
-              <p className="text-rb-gray text-sm mb-2 tracking-wide">
-                No commitment. No credit card.
-              </p>
-              <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-rb-silver mb-4 leading-tight">
-                Ready to get started?
-              </h3>
-              <p className="text-rb-gray text-sm sm:text-base leading-relaxed mb-8 max-w-md mx-auto">
-                Tell us what you are working on. We handle the matching, the scheduling, and everything in between. You just show up and build.
+              <p className="text-ink-soft text-sm mb-2 font-sketch">No commitment. No credit card.</p>
+              <h3 className="text-2xl sm:text-3xl font-display font-bold text-ink mb-3">Ready to get started?</h3>
+              <p className="text-ink-soft text-sm max-w-md mx-auto mb-6 font-sketch">
+                Tell us what you're working on. We handle the matching, scheduling, and everything in between. You just show up and build.
               </p>
 
-              {/* Primary CTA */}
+              {/* Animated CTA button with pulse glow */}
               <motion.button
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.97 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+                animate={{
+                  boxShadow: [
+                    '0 0 0px rgba(166,226,0,0.4)',
+                    '0 0 20px rgba(166,226,0,0.8)',
+                    '0 0 0px rgba(166,226,0,0.4)',
+                  ],
+                }}
+                transition={{ duration: 1.5, repeat: Infinity }}
                 onClick={() => navigate('/apply')}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-10 py-4 rounded-full bg-gradient-to-r from-rb-blue to-rb-steel text-rb-black font-bold text-base hover:opacity-90 transition-all duration-300 shadow-lg mb-4"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3 rounded-pill bg-gradient-to-r from-accent-lime to-accent-limeStrong text-ink font-bold text-sm hover:shadow-glow transition-all duration-300 font-sketch"
               >
                 Submit your brief
                 <motion.span
-                  animate={{ x: [0, 4, 0] }}
-                  transition={{ repeat: Infinity, duration: 1.5 }}
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.2 }}
                 >
                   →
                 </motion.span>
               </motion.button>
 
-              <p className="text-rb-gray/40 text-xs mt-4">
+              <p className="text-ink-faint text-[10px] mt-4 font-sketch">
                 We respond within 1 hour during working hours
               </p>
 
               {/* Secondary links */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 pt-8 border-t border-rb-silver/10">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6 pt-6 border-t border-accent-lime/20">
                 <button
                   onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="text-rb-gray text-sm hover:text-rb-blue transition-colors"
+                  className="text-ink-soft text-xs hover:text-accent-limeStrong transition-colors font-sketch"
                 >
                   Browse services first →
                 </button>
-                <span className="hidden sm:block w-1 h-1 rounded-full bg-rb-silver/20" />
+                <span className="hidden sm:block w-1 h-1 rounded-full bg-accent-lime/30" />
                 <button
                   onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="text-rb-gray text-sm hover:text-rb-blue transition-colors"
+                  className="text-ink-soft text-xs hover:text-accent-limeStrong transition-colors font-sketch"
                 >
                   See student projects →
                 </button>
@@ -192,7 +158,6 @@ export const Contact = () => {
             </div>
           </div>
         </motion.div>
-
       </div>
     </section>
   )

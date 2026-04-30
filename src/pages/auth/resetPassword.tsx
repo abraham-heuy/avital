@@ -1,7 +1,9 @@
+// ResetPassword.tsx – clean, matches Login pattern, dotted code inputs
 import { motion } from 'framer-motion';
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { resetPassword } from '../../services/api.service';
+import { BaseLayout } from '../../components/BaseLayout';
 
 export const ResetPassword = () => {
   const navigate = useNavigate();
@@ -14,53 +16,6 @@ export const ResetPassword = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [particles, setParticles] = useState<{ x: number; y: number; life: number; size: number; id: number }[]>([]);
-  const requestRef = useRef<number>(0);
-  const lastPositionRef = useRef({ x: 0, y: 0 });
-  const particleIdRef = useRef(0);
-
-  // Particle trail (same as login)
-  useEffect(() => {
-    const animateParticles = () => {
-      setParticles((prev) =>
-        prev
-          .map((p) => ({ ...p, life: p.life - 0.02 }))
-          .filter((p) => p.life > 0)
-      );
-      requestRef.current = requestAnimationFrame(animateParticles);
-    };
-    requestRef.current = requestAnimationFrame(animateParticles);
-    return () => {
-      if (requestRef.current) cancelAnimationFrame(requestRef.current);
-    };
-  }, []);
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const x = e.clientX;
-    const y = e.clientY;
-    const distance = Math.hypot(x - lastPositionRef.current.x, y - lastPositionRef.current.y);
-    if (distance > 10) {
-      const newParticles: { x: number; y: number; life: number; size: number; id: number; }[] = [];
-      for (let i = 0; i < 3; i++) {
-        newParticles.push({
-          x: x + (Math.random() - 0.5) * 15,
-          y: y + (Math.random() - 0.5) * 15,
-          life: 1,
-          size: Math.random() * 4 + 2,
-          id: particleIdRef.current++,
-        });
-      }
-      setParticles((prev) => [...prev, ...newParticles].slice(-200));
-      lastPositionRef.current = { x, y };
-    }
-  };
-
-  useEffect(() => {
-    document.body.style.cursor = 'none';
-    return () => {
-      document.body.style.cursor = '';
-    };
-  }, []);
 
   const handleCodeChange = (index: number, value: string) => {
     if (value.length > 1) return;
@@ -103,70 +58,36 @@ export const ResetPassword = () => {
   };
 
   return (
-    <div
-      className="relative min-h-screen bg-rb-black overflow-hidden flex items-center justify-center"
-      onMouseMove={handleMouseMove}
-    >
-      {/* Background blobs (same as login) */}
-      <div className="absolute inset-0 pointer-events-none">
-        <motion.div
-          className="absolute w-[500px] h-[500px] rounded-full bg-rb-blue/10 blur-3xl"
-          animate={{ x: [0, 80, 0], y: [0, 50, 0] }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-          style={{ left: '5%', top: '10%' }}
-        />
-        <motion.div
-          className="absolute w-[600px] h-[600px] rounded-full bg-rb-steel/10 blur-3xl"
-          animate={{ x: [0, -70, 0], y: [0, -40, 0] }}
-          transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-          style={{ right: '5%', bottom: '10%' }}
-        />
-        <div
-          className="absolute inset-0 opacity-[0.025]"
-          style={{
-            backgroundImage: `linear-gradient(var(--rb-silver, #ccc) 1px, transparent 1px),
-                              linear-gradient(90deg, var(--rb-silver, #ccc) 1px, transparent 1px)`,
-            backgroundSize: '60px 60px',
-          }}
-        />
+    <BaseLayout>
+      {/* Back button */}
+      <div className="fixed top-4 left-4 z-20">
+        <button
+          onClick={() => navigate('/login')}
+          className="flex items-center gap-1 text-ink-soft hover:text-ink transition-colors text-sm font-sketch bg-fog-lime/20 backdrop-blur-sm px-3 py-1.5 rounded-full border border-accent-lime/30"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
+          </svg>
+          Back
+        </button>
       </div>
 
-      {/* Particle trail */}
-      {particles.map((p) => (
-        <div
-          key={p.id}
-          className="fixed rounded-full bg-rb-blue pointer-events-none"
-          style={{
-            left: p.x - p.size / 2,
-            top: p.y - p.size / 2,
-            width: p.size,
-            height: p.size,
-            opacity: p.life * 0.8,
-            boxShadow: `0 0 ${p.size * 2}px rgba(167,199,231,0.8)`,
-          }}
-        />
-      ))}
-
-      <div className="relative z-10 w-full max-w-md px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="rounded-2xl p-8"
-          style={{ background: 'transparent' }}
-        >
+      {/* Centered form container */}
+      <div className="flex items-center justify-center min-h-[80vh] w-full">
+        <div className="w-full max-w-md mx-auto px-4">
           <div className="text-center mb-8">
-            <div className="text-3xl font-display font-bold text-rb-silver">
-              a<span className="text-rb-blue">V</span>ital
+            <div className="text-3xl font-display font-bold text-ink">
+              a<span className="text-accent-limeStrong">V</span>ital
             </div>
-            <p className="text-rb-gray text-sm mt-2">Reset your password</p>
-            <p className="text-rb-gray text-xs mt-1">Enter the code sent to {email}</p>
+            <p className="text-ink-soft text-sm mt-2 font-sketch">Reset your password</p>
+            <p className="text-ink-faint text-xs mt-1 font-sketch">Enter the code sent to {email}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Code inputs */}
+            {/* Code inputs row – DOTTED BORDER, BLACK TEXT */}
             <div>
-              <label className="block text-xs font-semibold tracking-widest uppercase text-rb-silver/50 mb-2">
+              <label className="block text-[11px] font-semibold tracking-wider uppercase text-ink-soft mb-2 font-sketch">
                 Reset code
               </label>
               <div className="flex gap-2 justify-center">
@@ -178,7 +99,7 @@ export const ResetPassword = () => {
                     maxLength={1}
                     value={digit}
                     onChange={(e) => handleCodeChange(idx, e.target.value)}
-                    className="w-12 h-12 text-center text-xl font-bold bg-transparent border-b border-rb-silver/30 text-rb-silver focus:border-rb-blue focus:outline-none transition-all"
+                    className="w-12 h-12 text-center text-xl font-bold text-ink bg-transparent border-2 border-dotted border-ink/40 rounded-lg focus:border-ink/80 focus:outline-none transition-all font-sketch"
                     autoFocus={idx === 0}
                   />
                 ))}
@@ -187,7 +108,7 @@ export const ResetPassword = () => {
 
             {/* New password */}
             <div>
-              <label className="block text-xs font-semibold tracking-widest uppercase text-rb-silver/50 mb-2">
+              <label className="block text-[11px] font-semibold tracking-wider uppercase text-ink-soft mb-1 font-sketch">
                 New password
               </label>
               <div className="relative">
@@ -195,14 +116,14 @@ export const ResetPassword = () => {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-0 py-2 bg-transparent border-b border-rb-silver/30 text-rb-silver text-sm placeholder:text-rb-gray/40 focus:border-rb-blue focus:outline-none transition-all pr-10"
+                  className="w-full px-0 py-2 bg-transparent border-b border-accent-lime/30 text-ink text-sm placeholder:text-ink-faint focus:border-accent-lime/80 focus:outline-none transition-all pr-10 font-sketch"
                   placeholder="••••••••"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center text-rb-gray hover:text-rb-blue transition-colors"
+                  className="absolute inset-y-0 right-0 flex items-center text-ink-faint hover:text-accent-limeStrong transition-colors"
                 >
                   {showPassword ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -220,46 +141,50 @@ export const ResetPassword = () => {
 
             {/* Confirm password */}
             <div>
-              <label className="block text-xs font-semibold tracking-widest uppercase text-rb-silver/50 mb-2">
+              <label className="block text-[11px] font-semibold tracking-wider uppercase text-ink-soft mb-1 font-sketch">
                 Confirm password
               </label>
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-0 py-2 bg-transparent border-b border-rb-silver/30 text-rb-silver text-sm placeholder:text-rb-gray/40 focus:border-rb-blue focus:outline-none transition-all"
+                className="w-full px-0 py-2 bg-transparent border-b border-accent-lime/30 text-ink text-sm placeholder:text-ink-faint focus:border-accent-lime/80 focus:outline-none transition-all font-sketch"
                 placeholder="••••••••"
                 required
               />
             </div>
 
             {error && (
-              <div className="text-red-400 text-xs text-center bg-red-400/10 rounded-lg p-2">
+              <div className="text-red-400 text-xs text-center bg-red-400/10 rounded-lg p-2 font-sketch">
                 {error}
               </div>
             )}
             {success && (
-              <div className="text-green-400 text-xs text-center bg-green-400/10 rounded-lg p-2">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-green-400 text-xs text-center bg-green-400/10 rounded-lg p-2 font-sketch"
+              >
                 {success}
-              </div>
+              </motion.div>
             )}
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 rounded-full bg-gradient-to-r from-rb-blue to-rb-steel text-rb-black font-bold text-sm hover:opacity-90 transition-all duration-300 disabled:opacity-50"
+              className="w-full py-3 rounded-pill bg-gradient-to-r from-accent-lime to-accent-limeStrong text-ink font-bold text-sm hover:shadow-glow transition-all duration-300 disabled:opacity-50 font-sketch"
             >
               {isLoading ? 'Resetting...' : 'Reset password →'}
             </button>
           </form>
 
           <div className="mt-6 text-center">
-            <button onClick={() => navigate('/login')} className="text-xs text-rb-gray hover:text-rb-blue transition-colors">
+            <button onClick={() => navigate('/login')} className="text-xs text-ink-soft hover:text-accent-limeStrong transition-colors font-sketch">
               Back to login
             </button>
           </div>
-        </motion.div>
+        </div>
       </div>
-    </div>
+    </BaseLayout>
   );
 };

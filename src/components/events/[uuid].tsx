@@ -1,18 +1,20 @@
+// EventPage.tsx – lime/peach theme, BaseLayout, reduced spacing
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { events } from '../../data/events'
 import { useState, useEffect } from 'react'
+import { BaseLayout } from '../../components/BaseLayout'
 
 const getEventTypeColor = (type: string) => {
   switch (type) {
     case 'workshop':
-      return 'border-rb-blue/30 bg-rb-blue/10 text-rb-blue'
+      return 'border-accent-lime/40 bg-fog-lime/30 text-accent-limeStrong'
     case 'hackathon':
-      return 'border-rb-steel/30 bg-rb-steel/10 text-rb-silver'
+      return 'border-accent-peach/40 bg-fog-peach/20 text-accent-peach'
     case 'career-talk':
-      return 'border-rb-blue/30 bg-rb-blue/10 text-rb-blue'
+      return 'border-accent-lime/40 bg-fog-lime/30 text-accent-limeStrong'
     default:
-      return 'border-rb-silver/30 bg-rb-silver/10 text-rb-silver'
+      return 'border-ink-faint/30 bg-fog-gray/20 text-ink-soft'
   }
 }
 
@@ -57,28 +59,28 @@ const CountdownTimer = ({ targetDate, onComplete }: { targetDate: string; onComp
   }, [targetDate, onComplete])
 
   if (timeLeft.days === 0 && timeLeft.hours === 0 && timeLeft.minutes === 0 && timeLeft.seconds === 0) {
-    return <span className="text-green-400 text-lg font-semibold">Event Live Now</span>
+    return <span className="text-green-400 text-lg font-semibold font-sketch">Event Live Now</span>
   }
 
   return (
     <div className="flex gap-4 justify-center">
       {timeLeft.days > 0 && (
         <div className="text-center">
-          <div className="text-3xl md:text-4xl font-bold text-rb-blue">{timeLeft.days}</div>
-          <div className="text-xs text-rb-gray">Days</div>
+          <div className="text-3xl md:text-4xl font-bold text-accent-limeStrong font-display">{timeLeft.days}</div>
+          <div className="text-xs text-ink-soft font-sketch">Days</div>
         </div>
       )}
       <div className="text-center">
-        <div className="text-3xl md:text-4xl font-bold text-rb-blue">{timeLeft.hours}</div>
-        <div className="text-xs text-rb-gray">Hours</div>
+        <div className="text-3xl md:text-4xl font-bold text-accent-limeStrong font-display">{timeLeft.hours}</div>
+        <div className="text-xs text-ink-soft font-sketch">Hours</div>
       </div>
       <div className="text-center">
-        <div className="text-3xl md:text-4xl font-bold text-rb-blue">{timeLeft.minutes}</div>
-        <div className="text-xs text-rb-gray">Minutes</div>
+        <div className="text-3xl md:text-4xl font-bold text-accent-limeStrong font-display">{timeLeft.minutes}</div>
+        <div className="text-xs text-ink-soft font-sketch">Minutes</div>
       </div>
       <div className="text-center">
-        <div className="text-3xl md:text-4xl font-bold text-rb-blue">{timeLeft.seconds}</div>
-        <div className="text-xs text-rb-gray">Seconds</div>
+        <div className="text-3xl md:text-4xl font-bold text-accent-limeStrong font-display">{timeLeft.seconds}</div>
+        <div className="text-xs text-ink-soft font-sketch">Seconds</div>
       </div>
     </div>
   )
@@ -91,201 +93,242 @@ export const EventPage = () => {
 
   if (!event) {
     return (
-      <section className="min-h-screen bg-rb-black flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-display font-bold text-rb-silver mb-4">Event not found</h1>
-          <button
-            onClick={() => navigate('/events')}
-            className="px-6 py-2.5 bg-gradient-to-r from-rb-blue to-rb-steel text-rb-black font-semibold rounded-full"
-          >
-            Back to Events →
-          </button>
+      <BaseLayout>
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-3xl font-display font-bold text-ink mb-4">Event not found</h1>
+            <button
+              onClick={() => navigate('/events')}
+              className="px-6 py-2.5 rounded-pill bg-gradient-to-r from-accent-lime to-accent-limeStrong text-ink font-bold text-sm hover:shadow-glow transition-all font-sketch"
+            >
+              Back to Events →
+            </button>
+          </div>
         </div>
-      </section>
+      </BaseLayout>
     )
   }
 
   const isLive = new Date(event.date) <= new Date()
 
   return (
-    <section className="relative bg-rb-black min-h-screen py-20 md:py-32 overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <motion.div
-          className="absolute w-[500px] h-[500px] rounded-full bg-rb-blue/5 blur-3xl"
-          animate={{ x: [0, 50, 0], y: [0, -30, 0] }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-          style={{ left: '5%', top: '10%' }}
-        />
-        <motion.div
-          className="absolute w-[600px] h-[600px] rounded-full bg-rb-steel/5 blur-3xl"
-          animate={{ x: [0, -40, 0], y: [0, 40, 0] }}
-          transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-          style={{ right: '5%', bottom: '10%' }}
-        />
-        <div
-          className="absolute inset-0 opacity-[0.025]"
-          style={{
-            backgroundImage: `linear-gradient(var(--rb-silver, #c9ced6) 1px, transparent 1px),
-                              linear-gradient(90deg, var(--rb-silver, #c9ced6) 1px, transparent 1px)`,
-            backgroundSize: '60px 60px',
-          }}
-        />
-      </div>
+    <BaseLayout>
+      <div className="relative py-12 md:py-16">
+        <div className="container mx-auto px-4 max-w-4xl">
+          {/* Back Button */}
+          <motion.button
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            onClick={() => navigate('/events')}
+            className="mb-6 flex items-center gap-2 text-ink-soft hover:text-accent-limeStrong transition-colors text-sm font-sketch"
+          >
+            <span>←</span> Back to all events
+          </motion.button>
 
-      <div className="relative z-10 container mx-auto px-4 max-w-4xl">
-        {/* Back Button */}
-        <motion.button
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          onClick={() => navigate('/events')}
-          className="mb-8 flex items-center gap-2 text-rb-gray hover:text-rb-blue transition-colors"
-        >
-          <span>←</span> Back to all events
-        </motion.button>
+          {/* Event Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="flex flex-wrap items-center gap-3 mb-4">
+              <span className={`inline-block px-2.5 py-0.5 rounded-full border text-[10px] font-semibold tracking-wider uppercase ${getEventTypeColor(event.type)} font-sketch`}>
+                {getEventTypeLabel(event.type)}
+              </span>
+              {isLive && <span className="text-green-400 text-xs font-semibold font-sketch">Live Now</span>}
+            </div>
+            
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold text-ink leading-tight mb-4">
+              {event.title}
+            </h1>
+            
+            <div className="flex flex-wrap items-center gap-2 text-[11px] text-ink-faint mb-6 pb-4 border-b border-accent-lime/20 font-sketch">
+              <span>{new Date(event.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+              <span className="w-1 h-1 rounded-full bg-accent-lime/40" />
+              <span>{event.time}</span>
+              <span className="w-1 h-1 rounded-full bg-accent-lime/40" />
+              <span>{event.location}</span>
+            </div>
+          </motion.div>
 
-        {/* Event Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <span className={`inline-block px-3 py-1 rounded-full border text-xs font-semibold tracking-widest uppercase ${getEventTypeColor(event.type)}`}>
-              {getEventTypeLabel(event.type)}
-            </span>
-            {isLive && <span className="text-green-400 text-xs font-semibold">Live Now</span>}
-          </div>
-          
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold text-rb-silver leading-tight mb-4">
-            {event.title}
-          </h1>
-          
-          <div className="flex flex-wrap items-center gap-4 text-sm text-rb-gray/60 mb-6 pb-4 border-b border-rb-silver/10">
-            <span>{new Date(event.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-            <span>•</span>
-            <span>{event.time}</span>
-            <span>•</span>
-            <span>{event.location}</span>
-          </div>
-        </motion.div>
-
-        {/* Countdown Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15, duration: 0.6 }}
-          className="mb-8 p-6 rounded-2xl bg-rb-dark/30 backdrop-blur-sm border border-rb-silver/15 text-center"
-        >
-          <h2 className="text-sm font-semibold tracking-widest uppercase text-rb-blue mb-4">
-            {isLive ? 'Happening Now' : 'Time Until Event'}
-          </h2>
-          <CountdownTimer targetDate={event.date} />
-        </motion.div>
-
-        {/* Event Content */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-          className="event-content"
-          dangerouslySetInnerHTML={{ __html: event.description }}
-        />
-
-        {/* Speakers Section */}
-        {event.speakers && event.speakers.length > 0 && (
+          {/* Countdown Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25, duration: 0.6 }}
-            className="mt-8 p-6 rounded-2xl bg-rb-dark/30 backdrop-blur-sm border border-rb-silver/15"
+            transition={{ delay: 0.15, duration: 0.6 }}
+            className="mb-8 p-6 rounded-organic bg-fog-lime/5 backdrop-blur-sm border border-accent-lime/20 text-center"
           >
-            <h2 className="text-xl font-bold text-rb-silver mb-4">Speakers</h2>
-            <div className="space-y-3">
-              {event.speakers.map((speaker, idx) => (
-                <div key={idx} className="flex items-center justify-between py-2 border-b border-rb-silver/10 last:border-0">
-                  <div>
-                    <p className="font-semibold text-rb-silver">{speaker.name}</p>
-                    <p className="text-sm text-rb-gray">{speaker.role}</p>
+            <h2 className="text-[11px] font-semibold tracking-wider uppercase text-accent-limeStrong mb-4 font-sketch">
+              {isLive ? 'Happening Now' : 'Time Until Event'}
+            </h2>
+            <CountdownTimer targetDate={event.date} />
+          </motion.div>
+
+          {/* Event Content */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="event-content font-sketch text-ink-soft"
+            dangerouslySetInnerHTML={{ __html: event.description }}
+          />
+
+          {/* Speakers Section */}
+          {event.speakers && event.speakers.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25, duration: 0.6 }}
+              className="mt-8 p-5 rounded-organic bg-fog-lime/5 backdrop-blur-sm border border-accent-lime/20"
+            >
+              <h2 className="text-lg font-display font-bold text-ink mb-3">Speakers</h2>
+              <div className="space-y-2">
+                {event.speakers.map((speaker, idx) => (
+                  <div key={idx} className="flex flex-wrap items-center justify-between py-2 border-b border-accent-lime/20 last:border-0">
+                    <div>
+                      <p className="font-semibold text-ink text-sm font-sketch">{speaker.name}</p>
+                      <p className="text-xs text-ink-soft font-sketch">{speaker.role}</p>
+                    </div>
+                    {speaker.company && <span className="text-xs text-accent-limeStrong font-sketch">{speaker.company}</span>}
                   </div>
-                  {speaker.company && <span className="text-xs text-rb-blue">{speaker.company}</span>}
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
+                ))}
+              </div>
+            </motion.div>
+          )}
 
-        {/* Agenda Section */}
-        {event.agenda && event.agenda.length > 0 && (
+          {/* Agenda Section */}
+          {event.agenda && event.agenda.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="mt-8 p-5 rounded-organic bg-fog-lime/5 backdrop-blur-sm border border-accent-lime/20"
+            >
+              <h2 className="text-lg font-display font-bold text-ink mb-3">Agenda</h2>
+              <div className="space-y-2">
+                {event.agenda.map((item, idx) => (
+                  <div key={idx} className="flex flex-wrap gap-3 py-2 border-b border-accent-lime/20 last:border-0">
+                    <span className="text-sm font-mono text-accent-limeStrong w-20 font-sketch">{item.time}</span>
+                    <span className="text-ink-soft flex-1 text-sm font-sketch">{item.activity}</span>
+                    {item.speaker && <span className="text-xs text-ink-faint font-sketch">{item.speaker}</span>}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Requirements Section */}
+          {event.requirements && event.requirements.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35, duration: 0.6 }}
+              className="mt-8 p-5 rounded-organic bg-fog-lime/5 backdrop-blur-sm border border-accent-lime/20"
+            >
+              <h2 className="text-lg font-display font-bold text-ink mb-3">Requirements</h2>
+              <ul className="space-y-1.5">
+                {event.requirements.map((req, idx) => (
+                  <li key={idx} className="flex items-start gap-2 text-sm text-ink-soft font-sketch">
+                    <span className="mt-1.5 w-1 h-1 rounded-full bg-accent-limeStrong flex-shrink-0" />
+                    {req}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          )}
+
+          {/* Register Button */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="mt-8 p-6 rounded-2xl bg-rb-dark/30 backdrop-blur-sm border border-rb-silver/15"
+            transition={{ delay: 0.4, duration: 0.6 }}
+            className="mt-8 pt-4 text-center"
           >
-            <h2 className="text-xl font-bold text-rb-silver mb-4">Agenda</h2>
-            <div className="space-y-3">
-              {event.agenda.map((item, idx) => (
-                <div key={idx} className="flex flex-wrap gap-4 py-2 border-b border-rb-silver/10 last:border-0">
-                  <span className="text-sm font-mono text-rb-blue w-20">{item.time}</span>
-                  <span className="text-rb-silver flex-1">{item.activity}</span>
-                  {item.speaker && <span className="text-xs text-rb-gray">{item.speaker}</span>}
-                </div>
-              ))}
-            </div>
+            <button
+              onClick={() => navigate(`/event/${event.id}/register`)}
+              className="px-8 py-3 rounded-pill bg-gradient-to-r from-accent-lime to-accent-limeStrong text-ink font-bold text-sm hover:shadow-glow hover:scale-105 transition-all duration-300 font-sketch"
+            >
+              Register for this event →
+            </button>
           </motion.div>
-        )}
 
-        {/* Requirements Section */}
-        {event.requirements && event.requirements.length > 0 && (
+          {/* Back to Top Button */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35, duration: 0.6 }}
-            className="mt-8 p-6 rounded-2xl bg-rb-dark/30 backdrop-blur-sm border border-rb-silver/15"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.45 }}
+            className="mt-8 pt-6 border-t border-accent-lime/20 text-center"
           >
-            <h2 className="text-xl font-bold text-rb-silver mb-4">Requirements</h2>
-            <ul className="space-y-2">
-              {event.requirements.map((req, idx) => (
-                <li key={idx} className="flex items-start gap-2 text-rb-gray">
-                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-rb-blue flex-shrink-0" />
-                  {req}
-                </li>
-              ))}
-            </ul>
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="px-5 py-2 rounded-pill border border-accent-lime/40 text-accent-limeStrong font-semibold text-sm hover:bg-fog-lime/20 transition-all duration-300 font-sketch"
+            >
+              Back to top ↑
+            </button>
           </motion.div>
-        )}
-
-        {/* Register Button - Navigates to registration page */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
-          className="mt-8 pt-4 text-center"
-        >
-          <button
-            onClick={() => navigate(`/event/${event.id}/register`)}
-            className="px-8 py-3 rounded-full bg-gradient-to-r from-rb-blue to-rb-steel text-rb-black font-bold text-sm sm:text-base hover:opacity-90 hover:scale-105 transition-all duration-300 shadow-lg"
-          >
-            Register for this event →
-          </button>
-        </motion.div>
-
-        {/* Back to Top Button */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.45 }}
-          className="mt-8 pt-8 border-t border-rb-silver/10 text-center"
-        >
-          <button
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="px-6 py-2.5 border border-rb-blue/50 text-rb-blue font-semibold rounded-full hover:bg-rb-blue/10 transition-all duration-300"
-          >
-            Back to top ↑
-          </button>
-        </motion.div>
+        </div>
       </div>
-    </section>
+
+      {/* Custom styles for event description content */}
+      <style>{`
+        .event-content h2 {
+          font-family: var(--font-display);
+          font-size: 1.5rem;
+          font-weight: 700;
+          margin-top: 2rem;
+          margin-bottom: 1rem;
+          color: #2A2A2A;
+        }
+        .event-content h3 {
+          font-family: var(--font-display);
+          font-size: 1.25rem;
+          font-weight: 600;
+          margin-top: 1.5rem;
+          margin-bottom: 0.75rem;
+          color: #2A2A2A;
+        }
+        .event-content p {
+          margin-bottom: 1rem;
+          line-height: 1.6;
+        }
+        .event-content a {
+          color: #A6E200;
+          text-decoration: underline;
+          text-underline-offset: 2px;
+        }
+        .event-content a:hover {
+          color: #C7F36B;
+        }
+        .event-content ul,
+        .event-content ol {
+          margin: 1rem 0;
+          padding-left: 1.5rem;
+        }
+        .event-content li {
+          margin-bottom: 0.5rem;
+        }
+        .event-content code {
+          background: rgba(199,243,107,0.15);
+          padding: 0.2rem 0.4rem;
+          border-radius: 4px;
+          font-family: monospace;
+          font-size: 0.9em;
+        }
+        .event-content pre {
+          background: rgba(0,0,0,0.4);
+          padding: 1rem;
+          border-radius: 12px;
+          overflow-x: auto;
+          margin: 1.5rem 0;
+        }
+        .event-content blockquote {
+          border-left: 3px solid #A6E200;
+          padding-left: 1rem;
+          margin: 1.5rem 0;
+          font-style: italic;
+          color: #6C6C6C;
+        }
+      `}</style>
+    </BaseLayout>
   )
 }

@@ -12,13 +12,20 @@ const apiClient = axios.create({
 
 // Response interceptor to handle errors globally
 apiClient.interceptors.response.use(
-  (response:any) => response,
-  (error:any) => {
-    if (error.response?.status === 401) {
-      // Unauthorized – redirect to login
-      window.location.href = '/login';
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      const { status, data } = error.response;
+      let message = data?.message || 'An error occurred';
+      if (status === 500) {
+        message = 'Internal server error. Please try again later.';
+      }
+      return Promise.reject({ status, message, data: data?.data });
+    } else if (error.request) {
+      return Promise.reject({ status: 0, message: 'Network error. Please check your connection.' });
+    } else {
+      return Promise.reject({ status: 0, message: error.message || 'Unexpected error' });
     }
-    return Promise.reject(error);
   }
 );
 
